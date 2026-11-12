@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaveWise AI – Category-Wise Budget Planning</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Palette */
+      --blue: #2d00f7;
+      --electric-indigo: #6a00f4;
+      --ultra-violet: #8900f2;
+      --purple-1: #a100f2;
+      --purple-2: #b100e8;
+      --hyper-magenta: #bc00dd;
+      --vivid-orchid-1: #d100d1;
+      --vivid-orchid-2: #db00b6;
+      --electric-rose: #e500a4;
+      --barbie-pink: #f20089;
+
+      --bg-gradient: linear-gradient(120deg, #f7f0ff, #ece0ff, #ffe3f3, #e6e1ff, #f7f0ff);
+      --panel-bg: rgba(255, 255, 255, 0.78);
+      --panel-border: rgba(137, 0, 242, 0.22);
+      --sidebar-bg: rgba(255, 255, 255, 0.94);
+      --modal-bg: rgba(255, 255, 255, 0.97);
+      --input-bg: rgba(161, 0, 242, 0.06);
+
+      --text-main: #1a0070;
+      --text-bold: #12004d;
+      --text-muted: #6a00f4;
+
+      --accent-purple: #8900f2;
+      --accent-glow: rgba(137, 0, 242, 0.28);
+      --neon-green: #059669;
+      --neon-red: #f20089;
+      --neon-cyan: #2d00f7;
+      --neon-yellow: #d97706;
+      --card-shadow: 0 10px 30px rgba(137, 0, 242, 0.1);
+
+      --gradient-btn: linear-gradient(135deg, #2d00f7, #8900f2 45%, #f20089);
+      --sidebar-w: 270px;
+    }
+
+    body.dark-theme, html.dark-theme {
+      --bg-gradient: linear-gradient(120deg, #0d0030, #1a0070, #2a0057, #14003f, #0d0030);
+      --panel-bg: rgba(26, 0, 112, 0.5);
+      --panel-border: rgba(177, 0, 232, 0.35);
+      --sidebar-bg: rgba(13, 0, 48, 0.92);
+      --modal-bg: rgba(26, 0, 90, 0.97);
+      --input-bg: rgba(255, 255, 255, 0.08);
+      --text-main: #f1e8ff;
+      --text-bold: #ffffff;
+      --text-muted: #d9c2ff;
+      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ANIMATED GRADIENT BACKGROUND */
+    body {
+      background: var(--bg-gradient);
+      background-size: 300% 300%;
+      animation: gradientShift 16s ease infinite;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ---------- BACKGROUND LAYERS ---------- */
+    .bg-animation {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-animation, .bg-animation * { transition: none; }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.5;
+      animation: pulseGlow 8s infinite alternate ease-in-out;
+    }
+
+    .orb-1 { width: 350px; height: 350px; background: rgba(45, 0, 247, 0.35); top: -50px; left: -50px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(242, 0, 137, 0.3); bottom: -80px; right: -80px; animation-delay: -4s; }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(1) translate(0, 0); opacity: 0.45; }
+      100% { transform: scale(1.2) translate(20px, 20px); opacity: 0.75; }
+    }
+
+    .sparkline {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 34%;
+      opacity: 0.5;
+    }
+
+    .spark-line {
+      fill: none;
+      stroke: url(#sparkGrad);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+      animation: drawLine 7s ease-in-out infinite;
+    }
+
+    .spark-area {
+      fill: url(#areaGrad);
+      opacity: 0;
+      animation: fadeArea 7s ease-in-out infinite;
+    }
+
+    @keyframes drawLine {
+      0%   { stroke-dashoffset: 2000; }
+      60%  { stroke-dashoffset: 0; }
+      90%  { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+
+    @keyframes fadeArea {
+      0%, 30% { opacity: 0; }
+      60%, 90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .wealth-symbol {
+      position: absolute;
+      font-size: 2.2rem;
+      opacity: 0.5;
+      animation: floatUp 12s infinite linear;
+    }
+
+    .wealth-symbol:nth-of-type(1) { left: 30%; animation-duration: 9s;  animation-delay: 0s; }
+    .wealth-symbol:nth-of-type(2) { left: 45%; animation-duration: 13s; animation-delay: 2s; }
+    .wealth-symbol:nth-of-type(3) { left: 60%; animation-duration: 10s; animation-delay: 1s; }
+    .wealth-symbol:nth-of-type(4) { left: 78%; animation-duration: 14s; animation-delay: 4s; }
+    .wealth-symbol:nth-of-type(5) { left: 92%; animation-duration: 11s; animation-delay: 3s; }
+
+    @keyframes floatUp {
+      0% { transform: translateY(105vh) rotate(0deg) scale(0.8); opacity: 0; }
+      20% { opacity: 0.5; }
+      80% { opacity: 0.5; }
+      100% { transform: translateY(-10vh) rotate(360deg) scale(1.1); opacity: 0; }
+    }
+
+    /* Floating transaction cards – only over the content area */
+    .txn-layer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: var(--sidebar-w);
+      right: 0;
+      overflow: hidden;
+    }
+
+    .txn-card {
+      position: absolute;
+      bottom: -100px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 18px 11px 12px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      box-shadow: 0 12px 28px rgba(137, 0, 242, 0.22);
+      white-space: nowrap;
+      opacity: 0;
+      animation: txnRise var(--dur) linear var(--delay) infinite;
+    }
+
+    body.dark-theme .txn-card { background: rgba(40, 8, 120, 0.9); }
+
+    .txn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #fff;
+    }
+
+    .txn-card.credit .txn-icon { background: linear-gradient(135deg, #2d00f7, #8900f2); }
+    .txn-card.debit  .txn-icon { background: linear-gradient(135deg, #db00b6, #f20089); }
+
+    .txn-info { display: flex; flex-direction: column; line-height: 1.25; }
+    .txn-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+    .txn-amount { font-size: 1.02rem; font-weight: 800; }
+    .txn-card.credit .txn-amount { color: var(--blue); }
+    .txn-card.debit  .txn-amount { color: var(--barbie-pink); }
+
+    body.dark-theme .txn-card.credit .txn-amount { color: #b5adff; }
+
+    @keyframes txnRise {
+      0%   { transform: translateY(0) rotate(var(--rot)); opacity: 0; }
+      8%   { opacity: 1; }
+      88%  { opacity: 1; }
+      100% { transform: translateY(-125vh) rotate(calc(var(--rot) * -1)); opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body, .orb, .wealth-symbol, .txn-card, .spark-line, .spark-area { animation: none; }
+      .txn-layer { display: none; }
+      .spark-line { stroke-dashoffset: 0; }
+    }
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      z-index: 10;
+      box-shadow: 8px 0 30px rgba(137, 0, 242, 0.08);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      margin-bottom: 36px;
+      padding: 0 8px;
+    }
+
+    .brand-icon {
+      width: 46px;
+      height: 46px;
+      background: var(--gradient-btn);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 1.3rem;
+      box-shadow: 0 8px 20px var(--accent-glow);
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      border-radius: 16px;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .nav-item i {
+      font-size: 1.15rem;
+      color: var(--ultra-violet);
+    }
+
+    .nav-item:hover {
+      background: rgba(137, 0, 242, 0.1);
+      color: var(--text-bold);
+      transform: translateX(5px);
+      border-color: rgba(137, 0, 242, 0.22);
+    }
+
+    .nav-item.active {
+      background: var(--gradient-btn);
+      color: #ffffff !important;
+      font-weight: 800;
+      box-shadow: 0 8px 20px rgba(137, 0, 242, 0.35);
+    }
+
+    .nav-item.active i {
+      color: #ffffff !important;
+    }
+
+    .nav-item.logout {
+      color: var(--barbie-pink);
+      font-weight: 800;
+      margin-top: auto;
+      background: rgba(242, 0, 137, 0.06);
+      border: 1px solid rgba(242, 0, 137, 0.2);
+    }
+
+    .nav-item.logout i { color: var(--barbie-pink); }
+
+    .nav-item.logout:hover {
+      background: rgba(242, 0, 137, 0.15);
+      color: var(--electric-rose);
+    }
+
+    /* ---------- MAIN ---------- */
+    .main-wrapper {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 40px;
+      max-width: 1280px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .user-greeting h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      letter-spacing: -0.5px;
+    }
+
+    .user-greeting p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .sync-banner {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .sync-card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .sync-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(137, 0, 242, 0.18);
+    }
+
+    .sync-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sync-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      margin-top: 8px;
+    }
+
+    .edit-btn-sm {
+      background: rgba(137, 0, 242, 0.1);
+      border: 1px solid var(--panel-border);
+      color: var(--accent-purple);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .edit-btn-sm:hover {
+      background: var(--gradient-btn);
+      color: #fff;
+    }
+
+    .budget-content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 28px;
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      margin-bottom: 6px;
+    }
+
+    .section-hint {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .cat-card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .cat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(137, 0, 242, 0.18);
+    }
+
+    .cat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .cat-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(161, 0, 242, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .cat-info h4 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-bold);
+    }
+
+    .cat-info span {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .cat-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .cat-spent {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-bold);
+    }
+
+    .cat-limit {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 12px;
+      background: rgba(161, 0, 242, 0.12);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 20px;
+      width: 0%;
+    }
+
+    .status-badge {
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 14px;
+    }
+
+    .badge-green { background: rgba(5, 150, 105, 0.12); color: var(--neon-green); }
+    .badge-yellow { background: rgba(217, 119, 6, 0.12); color: var(--neon-yellow); }
+    .badge-red { background: rgba(242, 0, 137, 0.12); color: var(--neon-red); }
+
+    .cat-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 9px 6px;
+      border-radius: 10px;
+      border: 1px solid var(--panel-border);
+      background: rgba(161, 0, 242, 0.06);
+      color: var(--text-bold);
+      font-weight: 800;
+      font-size: 0.78rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .btn-action:hover {
+      background: var(--gradient-btn);
+      color: #fff;
+    }
+
+    .btn-delete {
+      background: rgba(242, 0, 137, 0.08);
+      border-color: rgba(242, 0, 137, 0.28);
+      color: var(--neon-red);
+    }
+
+    .btn-delete:hover {
+      background: var(--neon-red);
+      color: #fff;
+    }
+
+    .add-category-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid var(--panel-border);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .add-category-panel h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      color: var(--text-bold);
+      font-weight: 700;
+      outline: none;
+      font-size: 0.92rem;
+    }
+
+    .form-group input:focus {
+      border-color: var(--purple-2);
+      box-shadow: 0 0 0 4px rgba(177, 0, 232, 0.18);
+    }
+
+    .btn-add-cat {
+      width: 100%;
+      padding: 13px;
+      background: var(--gradient-btn);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(137, 0, 242, 0.35);
+      font-size: 0.92rem;
+      margin-top: 8px;
+    }
+
+    .btn-add-cat:hover, .modal-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(242, 0, 137, 0.4);
+    }
+
+    /* ---------- MODALS ---------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(26, 0, 112, 0.5);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .modal-card {
+      background: var(--modal-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 22px;
+      width: 90%;
+      max-width: 420px;
+      padding: 26px;
+      box-shadow: 0 20px 40px rgba(137, 0, 242, 0.25);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      color: var(--text-bold);
+    }
+
+    .modal-head h3 { font-size: 1.15rem; font-weight: 800; color: var(--text-bold); }
+
+    .modal-submit {
+      width: 100%;
+      padding: 13px;
+      background: var(--gradient-btn);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(137, 0, 242, 0.35);
+      font-size: 0.92rem;
+    }
+
+    .modal-secondary {
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px;
+      background: rgba(137, 0, 242, 0.1);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      color: var(--accent-purple);
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .modal-secondary:hover {
+      background: var(--accent-purple);
+      color: #fff;
+    }
+
+    .modal-note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin: -6px 0 14px;
+      line-height: 1.5;
+    }
+
+    /* EMI Info modal */
+    .emi-total-box {
+      background: var(--gradient-btn);
+      color: #fff;
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 20px rgba(137, 0, 242, 0.3);
+    }
+    .emi-total-box span { font-size: 0.78rem; font-weight: 700; opacity: 0.9; }
+    .emi-total-box h2 { font-size: 1.7rem; font-weight: 800; margin-top: 2px; }
+
+    .emi-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 240px;
+      overflow-y: auto;
+      margin-bottom: 14px;
+    }
+    .emi-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+    }
+    .emi-item-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: rgba(161, 0, 242, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+    .emi-item-info { flex: 1; min-width: 0; }
+    .emi-item-info h4 { font-size: 0.92rem; font-weight: 800; color: var(--text-bold); }
+    .emi-item-info small { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+    .emi-item-amt { font-size: 1rem; font-weight: 800; color: var(--text-bold); }
+
+    .emi-empty {
+      text-align: center;
+      padding: 20px 10px;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .emi-empty i { font-size: 1.8rem; color: var(--ultra-violet); display: block; margin-bottom: 8px; }
+    .emi-hint { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; margin-bottom: 14px; }
+
+    @media (max-width: 1024px) { .budget-content-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) {
+      :root { --sidebar-w: 80px; }
+      .sidebar { padding: 20px 10px; }
+      .brand span, .nav-item span { display: none; }
+      .main-wrapper { padding: 22px; }
+    }
+  </style>
+
+  <!-- Instant Theme Sync Script for Budget Page -->
+  <script>
+    (function syncTheme() {
+      let currentUser = localStorage.getItem('savewise_current_user');
+      let savedTheme = localStorage.getItem('savewise_theme');
+      if (currentUser) {
+        let userData = JSON.parse(localStorage.getItem(`savewise_userData_${currentUser}`));
+        if (userData && userData.theme) savedTheme = userData.theme;
+      }
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark-theme');
+        window.addEventListener('DOMContentLoaded', () => {
+          document.body.classList.add('dark-theme');
+        });
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- BACKGROUND: orbs + savings graph + symbols + transaction cards -->
+  <div class="bg-animation" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <svg class="sparkline" viewBox="0 0 1200 200" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="sparkGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#2d00f7"/>
+          <stop offset="50%" stop-color="#bc00dd"/>
+          <stop offset="100%" stop-color="#f20089"/>
+        </linearGradient>
+        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8900f2" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#8900f2" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="spark-area" d="M0,170 L100,150 L200,160 L320,115 L430,130 L540,85 L650,100 L760,60 L880,75 L990,35 L1100,50 L1200,15 L1200,200 L0,200 Z"/>
+      <path class="spark-line" d="M0,170 L100,150 L200,160 L320,115 L430,130 L540,85 L650,100 L760,60 L880,75 L990,35 L1100,50 L1200,15"/>
+    </svg>
+
+    <div class="wealth-symbol">🪙</div>
+    <div class="wealth-symbol">💵</div>
+    <div class="wealth-symbol">📊</div>
+    <div class="wealth-symbol">💰</div>
+    <div class="wealth-symbol">💳</div>
+
+    <div class="txn-layer" id="txnLayer"></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <span>SaveWise AI</span>
+    </div>
+    <ul class="nav-links">
+      <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-house"></i> <span>Home</span></a>
+      <a href="budget.html" class="nav-item active"><i class="fa-solid fa-wallet"></i> <span>Budget</span></a>
+      <a href="transactions.html" class="nav-item"><i class="fa-solid fa-list-check"></i> <span>Transactions</span></a>
+      <a href="goals.html" class="nav-item"><i class="fa-solid fa-bullseye"></i> <span>Savings Goals</span></a>
+      <a href="analytics.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> <span>Analytics</span></a>
+      <a href="chatbot.html" class="nav-item"><i class="fa-solid fa-robot"></i> <span>Finora AI Chat</span></a>
+      <a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> <span>Settings</span></a>
+      <a href="javascript:void(0);" class="nav-item logout" onclick="handleLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+      </a>
+    </ul>
+  </div>
+
+  <div class="main-wrapper">
+    <div class="header-bar">
+      <div class="user-greeting">
+        <h2>Category-Wise Budget Planning 🎯</h2>
+        <p>Manage limits, add custom categories, and track multi-user expenses.</p>
+      </div>
+    </div>
+
+    <div class="sync-banner">
+      <div class="sync-card">
+        <div class="sync-title">
+          <span>Monthly Income</span>
+          <button class="edit-btn-sm" onclick="openIncomeModal()"><i class="fa-solid fa-pen"></i> Edit</button>
+        </div>
+        <div class="sync-val" id="syncIncome" style="color: var(--neon-green);">₹0</div>
+      </div>
+
+      <div class="sync-card">
+        <div class="sync-title">
+          <span>Total Budget Limit</span>
+          <button class="edit-btn-sm" onclick="openTotalLimitModal()"><i class="fa-solid fa-pen"></i> Edit</button>
+        </div>
+        <div class="sync-val" id="syncTotalLimit">₹0</div>
+      </div>
+
+      <div class="sync-card">
+        <div class="sync-title"><span>Total Expense</span></div>
+        <div class="sync-val" id="syncTotalSpent" style="color: var(--neon-red);">₹0</div>
+      </div>
+
+      <div class="sync-card">
+        <div class="sync-title">
+          <span>Active EMI / Loans</span>
+          <button class="edit-btn-sm" onclick="openEmiModal()"><i class="fa-solid fa-info"></i> Info</button>
+        </div>
+        <div class="sync-val" id="syncEmi" style="color: var(--neon-yellow);">₹0</div>
+      </div>
+
+      <div class="sync-card">
+        <div class="sync-title"><span>Total Balance</span></div>
+        <div class="sync-val" id="syncRemaining" style="color: var(--neon-cyan);">₹0</div>
+      </div>
+    </div>
+
+    <div class="budget-content-grid">
+      <div>
+        <div class="section-title">Category Thresholds</div>
+        <p class="section-hint" id="autoHint"></p>
+        <div class="category-grid" id="categoryGridContainer"></div>
+      </div>
+
+      <div class="add-category-panel">
+        <h3><i class="fa-solid fa-plus-circle" style="color: var(--accent-purple);"></i> Add Category</h3>
+        <div class="form-group">
+          <label>Category Icon / Emoji</label>
+          <input type="text" id="newCatIcon" placeholder="e.g. 🏍️, 🏠" value="📦">
+        </div>
+        <div class="form-group">
+          <label>Category Name</label>
+          <input type="text" id="newCatName" placeholder="e.g. Bike EMI, Groceries">
+        </div>
+        <button class="btn-add-cat" onclick="addNewCategory()"><i class="fa-solid fa-plus"></i> Add Category</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal-overlay" id="incomeModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Edit Monthly Income</h3>
+        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('incomeModal')"></i>
+      </div>
+      <div class="form-group">
+        <label>Total Monthly Income (₹)</label>
+        <input type="number" id="inputIncomeVal" placeholder="Enter income">
+      </div>
+      <button class="modal-submit" onclick="saveIncome()">Update Income</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="totalLimitModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Edit Total Budget Limit</h3>
+        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('totalLimitModal')"></i>
+      </div>
+      <div class="form-group">
+        <label>Overall Monthly Budget Limit (₹)</label>
+        <input type="number" id="inputOverallLimitVal" placeholder="Enter total limit">
+      </div>
+      <p class="modal-note">Category limits are split automatically from this amount.</p>
+      <button class="modal-submit" onclick="saveOverallTotalLimit()">Update Limit</button>
+    </div>
+  </div>
+
+  <!-- EMI / Loans Info modal -->
+  <div class="modal-overlay" id="emiModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Active EMI / Loans</h3>
+        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('emiModal')"></i>
+      </div>
+
+      <div class="emi-total-box">
+        <span>Total EMI / Loan Paid</span>
+        <h2 id="emiModalTotal">₹0</h2>
+      </div>
+
+      <div class="emi-list" id="emiListContainer"></div>
+
+      <p class="emi-hint">If a category name contains "EMI" or "Loan", it appears here automatically.</p>
+      <button class="modal-submit" onclick="closeModal('emiModal')">Close</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="limitModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalCatTitle">Edit Category Limit</h3>
+        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('limitModal')"></i>
+      </div>
+      <div class="form-group">
+        <label>New Allocated Budget Limit (₹)</label>
+        <input type="number" id="inputNewLimit" placeholder="Enter new limit">
+      </div>
+      <p class="modal-note">Saving a custom limit locks this category. The remaining budget is split among the other categories.</p>
+      <button class="modal-submit" onclick="saveCategoryLimit()">Save Limit</button>
+      <button class="modal-secondary" id="resetAutoBtn" onclick="resetCategoryToAuto()"><i class="fa-solid fa-wand-magic-sparkles"></i> Reset to Auto</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="expenseModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalExpenseTitle">Add Expense</h3>
+        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('expenseModal')"></i>
+      </div>
+      <div class="form-group">
+        <label>Expense Amount (₹)</label>
+        <input type="number" id="inputExpenseAmount" placeholder="Enter spent amount">
+      </div>
+      <button class="modal-submit" onclick="saveExpense()">Add Expense</button>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- Floating transaction cards (background) ---------- */
+    (function buildTransactions() {
+      const layer = document.getElementById('txnLayer');
+      const txns = [
+        { icon: '💼', title: 'Salary Credited',  amount: '+₹50,000', type: 'credit' },
+        { icon: '🍔', title: 'Swiggy',           amount: '-₹320',    type: 'debit'  },
+        { icon: '🏦', title: 'Savings Deposit',  amount: '+₹5,000',  type: 'credit' },
+        { icon: '🛒', title: 'Grocery',          amount: '-₹1,450',  type: 'debit'  },
+        { icon: '📈', title: 'Mutual Fund SIP',  amount: '-₹2,000',  type: 'debit'  },
+        { icon: '🎁', title: 'Cashback',         amount: '+₹150',    type: 'credit' },
+        { icon: '⚡', title: 'EB Bill',          amount: '-₹890',    type: 'debit'  },
+        { icon: '☕', title: 'Coffee',           amount: '-₹120',    type: 'debit'  },
+        { icon: '💸', title: 'Freelance Income', amount: '+₹12,500', type: 'credit' },
+        { icon: '🚕', title: 'Cab Ride',         amount: '-₹260',    type: 'debit'  },
+        { icon: '📱', title: 'Mobile Recharge',  amount: '-₹299',    type: 'debit'  },
+        { icon: '🏠', title: 'Rent Received',    amount: '+₹8,000',  type: 'credit' },
+        { icon: '🎬', title: 'Movie Tickets',    amount: '-₹540',    type: 'debit'  },
+        { icon: '💊', title: 'Pharmacy',         amount: '-₹410',    type: 'debit'  }
+      ];
+
+      txns.forEach((t, i) => {
+        const dur = 13 + Math.random() * 7;                 // 13s - 20s
+        const el = document.createElement('div');
+        el.className = 'txn-card ' + t.type;
+        el.style.left = (2 + (i * 7.1) % 72) + '%';
+        el.style.setProperty('--dur', dur + 's');
+        el.style.setProperty('--delay', (-Math.random() * dur) + 's');
+        el.style.setProperty('--rot', (Math.random() * 8 - 4) + 'deg');
+        el.innerHTML =
+          '<div class="txn-icon">' + t.icon + '</div>' +
+          '<div class="txn-info">' +
+            '<span class="txn-title">' + t.title + '</span>' +
+            '<span class="txn-amount">' + t.amount + '</span>' +
+          '</div>';
+        layer.appendChild(el);
+      });
+    })();
+
+    /* ---------- Budget logic ---------- */
+    let currentUserEmail = localStorage.getItem('savewise_current_user');
+    if (!currentUserEmail) {
+      alert("No active session found. Please login first!");
+      window.location.href = 'login.html';
+    }
+
+    const userScopedKey = `savewise_userData_${currentUserEmail}`;
+
+    const defaultCategories = [
+      { id: 'cat_1', name: 'Food & Dining', icon: '🍔', spent: 0, limit: 0 },
+      { id: 'cat_2', name: 'Shopping & Apparel', icon: '🛍️', spent: 0, limit: 0 },
+      { id: 'cat_3', name: 'Bills & Utilities', icon: '💡', spent: 0, limit: 0 },
+      { id: 'cat_4', name: 'Transportation', icon: '🚗', spent: 0, limit: 0 },
+      { id: 'cat_5', name: 'Loan EMI', icon: '🏦', spent: 0, limit: 0 }
+    ];
+
+    /* ---------- Automatic category limits ---------- */
+    // Share of the budget each category gets (scaled so they add up to the total)
+    function weightFor(cat) {
+      const n = (cat.name || '').toLowerCase();
+      if (n.includes('emi') || n.includes('loan')) return 25;
+      if (n.includes('food') || n.includes('dining')) return 25;
+      if (n.includes('bill') || n.includes('utilit')) return 20;
+      if (n.includes('shopping') || n.includes('apparel')) return 15;
+      if (n.includes('transport')) return 15;
+      return 10; // entertainment and any custom category
+    }
+
+    // Where the category budget comes from: saved total > 80% of income > default base
+    function getBudgetBase(data) {
+      const total = parseFloat(data.customTotalLimit) || 0;
+      if (total > 0) return { amount: total, source: 'total' };
+
+      const income = parseFloat(data.profile?.baseIncome) || 0;
+      if (income > 0) return { amount: Math.round(income * 0.8), source: 'income' };
+
+      return { amount: 20000, source: 'default' };
+    }
+
+    function applyAutoLimits(data) {
+      const cats = data.budget || [];
+      const total = getBudgetBase(data).amount;
+
+      // Older categories that already have a limit stay locked as manual
+      cats.forEach(c => {
+        if (c.autoLimit === undefined) {
+          c.autoLimit = !((parseFloat(c.limit) || 0) > 0);
+        }
+      });
+
+      const manualSum = cats
+        .filter(c => c.autoLimit === false)
+        .reduce((s, c) => s + (parseFloat(c.limit) || 0), 0);
+
+      const auto = cats.filter(c => c.autoLimit !== false);
+      const pool = Math.max(0, total - manualSum);
+      const weightSum = auto.reduce((s, c) => s + weightFor(c), 0);
+
+      let assigned = 0;
+      auto.forEach((c, i) => {
+        let v;
+        if (i === auto.length - 1) {
+          v = Math.max(0, pool - assigned);       // last one takes the rounding remainder
+        } else {
+          v = weightSum > 0 ? Math.round(pool * weightFor(c) / weightSum) : 0;
+        }
+        c.limit = v;
+        assigned += v;
+      });
+    }
+
+    function getStorageData() {
+      let data = JSON.parse(localStorage.getItem(userScopedKey));
+      if (!data) {
+        data = {
+          profile: { name: currentUserEmail.split('@')[0], email: currentUserEmail, baseIncome: 0, currency: '₹' },
+          budget: defaultCategories.map(c => ({ ...c })),
+          transactions: [],
+          customTotalLimit: 0,
+          theme: localStorage.getItem('savewise_theme') || 'light'
+        };
+      } else {
+        if (!data.budget || data.budget.length === 0) {
+          data.budget = defaultCategories.map(c => ({ ...c }));
+        } else {
+          defaultCategories.forEach(defCat => {
+            if (!data.budget.some(c => c.name.toLowerCase() === defCat.name.toLowerCase())) {
+              data.budget.push({ ...defCat });
+            }
+          });
+        }
+      }
+      applyAutoLimits(data);
+      localStorage.setItem(userScopedKey, JSON.stringify(data));
+      return data;
+    }
+
+    let userDataContainer = getStorageData();
+    let categories = userDataContainer.budget;
+    let activeCatId = null;
+
+    function applyTheme() {
+      let savedTheme = localStorage.getItem('savewise_theme') || userDataContainer.theme || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.documentElement.classList.add('dark-theme');
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.documentElement.classList.remove('dark-theme');
+      }
+    }
+
+    function renderBudgetPage() {
+      userDataContainer = getStorageData();
+      applyTheme();
+      categories = userDataContainer.budget;
+
+      let baseInc = parseFloat(userDataContainer.profile?.baseIncome) || 0;
+      let txList = userDataContainer.transactions || [];
+
+      let addedIncome = txList
+        .filter(t => t.type && (t.type.toLowerCase() === 'income'))
+        .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+
+      let totalIncome = baseInc + addedIncome;
+
+      let totalEmi = categories
+        .filter(c => c.name && (c.name.toLowerCase().includes('emi') || c.name.toLowerCase().includes('loan')))
+        .reduce((sum, c) => sum + (parseFloat(c.spent) || 0), 0);
+
+      let totalSpent = txList
+        .filter(t => t.type && (t.type.toLowerCase() === 'expense'))
+        .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+
+      if (txList.length === 0) {
+        totalSpent = categories.reduce((acc, cur) => acc + (parseFloat(cur.spent) || 0), 0);
+      }
+
+      let totalBalance = totalIncome - totalSpent;
+
+      const base = getBudgetBase(userDataContainer);
+
+      document.getElementById('syncIncome').innerText = `₹${totalIncome.toLocaleString('en-IN')}`;
+      document.getElementById('syncTotalLimit').innerText =
+        `₹${base.amount.toLocaleString('en-IN')}` + (base.source === 'total' ? '' : ' (auto)');
+      document.getElementById('syncTotalSpent').innerText = `₹${totalSpent.toLocaleString('en-IN')}`;
+      document.getElementById('syncEmi').innerText = `₹${totalEmi.toLocaleString('en-IN')}`;
+      document.getElementById('syncRemaining').innerText = `₹${totalBalance.toLocaleString('en-IN')}`;
+
+      const hints = {
+        total: 'Limits are split automatically from your Total Budget Limit. Edit a category to set your own amount.',
+        income: 'No Total Budget Limit set, so limits use 80% of your monthly income. Set a Total Budget Limit to change this.',
+        default: 'No income or Total Budget Limit set yet, so default limits (₹20,000 base) are used. Set your income or Total Budget Limit to personalise them.'
+      };
+      document.getElementById('autoHint').innerText = hints[base.source];
+
+      const container = document.getElementById('categoryGridContainer');
+      container.innerHTML = '';
+
+      if (!categories || categories.length === 0) {
+        container.innerHTML = `<p style="color: var(--text-muted); font-weight: 700;">No categories added yet.</p>`;
+      } else {
+        categories.forEach(cat => {
+          let spentVal = parseFloat(cat.spent) || 0;
+          let limitVal = parseFloat(cat.limit) || 0;
+          let percent = limitVal > 0 ? Math.min(Math.round((spentVal / limitVal) * 100), 100) : 0;
+          let barColor = 'var(--neon-green)';
+          let badgeClass = 'badge-green';
+          let badgeText = 'Safe Zone (<70%)';
+
+          if (percent >= 70 && percent <= 90) {
+            barColor = 'var(--neon-yellow)';
+            badgeClass = 'badge-yellow';
+            badgeText = 'Warning Level (70%-90%)';
+          } else if (percent > 90) {
+            barColor = 'var(--neon-red)';
+            badgeClass = 'badge-red';
+            badgeText = percent >= 100 ? 'Limit Exceeded! (>100%)' : 'Critical Alert (>90%)';
+          }
+
+          const limitLabel = cat.autoLimit === false ? 'Manual limit' : 'Auto limit';
+
+          const cardHtml = `
+            <div class="cat-card">
+              <div class="cat-header">
+                <div class="cat-icon-box">${cat.icon || '📦'}</div>
+                <div class="cat-info">
+                  <h4>${cat.name}</h4>
+                  <span>${limitLabel}</span>
+                </div>
+              </div>
+
+              <div class="cat-stats">
+                <div class="cat-spent">₹${spentVal.toLocaleString('en-IN')}</div>
+                <div class="cat-limit">Limit: ₹${limitVal.toLocaleString('en-IN')}</div>
+              </div>
+
+              <div class="progress-container">
+                <div class="progress-fill" style="width: ${percent}%; background-color: ${barColor};"></div>
+              </div>
+
+              <div>
+                <span class="status-badge ${badgeClass}">${badgeText}</span>
+              </div>
+
+              <div class="cat-actions">
+                <button class="btn-action" onclick="openExpenseModal('${cat.id}')"><i class="fa-solid fa-plus"></i> Expense</button>
+                <button class="btn-action" onclick="openLimitModal('${cat.id}')"><i class="fa-solid fa-pen"></i> Limit</button>
+                <button class="btn-action btn-delete" onclick="deleteCategory('${cat.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+              </div>
+            </div>
+          `;
+          container.innerHTML += cardHtml;
+        });
+      }
+    }
+
+    function saveDataToStorage() {
+      userDataContainer.budget = categories;
+      localStorage.setItem(userScopedKey, JSON.stringify(userDataContainer));
+    }
+
+    function openIncomeModal() {
+      document.getElementById('inputIncomeVal').value = userDataContainer.profile?.baseIncome || 0;
+      document.getElementById('incomeModal').style.display = 'flex';
+    }
+
+    function saveIncome() {
+      let val = parseFloat(document.getElementById('inputIncomeVal').value);
+      if (!isNaN(val) && val >= 0) {
+        userDataContainer.profile.baseIncome = val;
+        saveDataToStorage();
+        closeModal('incomeModal');
+        renderBudgetPage();   // limits re-split if income is the budget base
+      }
+    }
+
+    function openTotalLimitModal() {
+      document.getElementById('inputOverallLimitVal').value = userDataContainer.customTotalLimit || 0;
+      document.getElementById('totalLimitModal').style.display = 'flex';
+    }
+
+    function saveOverallTotalLimit() {
+      let val = parseFloat(document.getElementById('inputOverallLimitVal').value);
+      if (!isNaN(val) && val >= 0) {
+        userDataContainer.customTotalLimit = val;
+        saveDataToStorage();
+        closeModal('totalLimitModal');
+        renderBudgetPage();   // limits are re-split automatically here
+      }
+    }
+
+    /* EMI / Loans Info */
+    function openEmiModal() {
+      const emiCats = (categories || []).filter(c =>
+        c.name && (c.name.toLowerCase().includes('emi') || c.name.toLowerCase().includes('loan'))
+      );
+
+      const total = emiCats.reduce((sum, c) => sum + (parseFloat(c.spent) || 0), 0);
+      document.getElementById('emiModalTotal').innerText = `₹${total.toLocaleString('en-IN')}`;
+
+      const list = document.getElementById('emiListContainer');
+      list.innerHTML = '';
+
+      if (emiCats.length === 0) {
+        list.innerHTML = `
+          <div class="emi-empty">
+            <i class="fa-solid fa-landmark"></i>
+            No EMI / Loan category found.<br>
+            Add a category like "Loan EMI".
+          </div>`;
+      } else {
+        emiCats.forEach(c => {
+          const item = document.createElement('div');
+          item.className = 'emi-item';
+
+          const icon = document.createElement('div');
+          icon.className = 'emi-item-icon';
+          icon.textContent = c.icon || '🏦';
+
+          const info = document.createElement('div');
+          info.className = 'emi-item-info';
+          const title = document.createElement('h4');
+          title.textContent = c.name;
+          const sub = document.createElement('small');
+          sub.textContent = `Limit: ₹${(parseFloat(c.limit) || 0).toLocaleString('en-IN')}`;
+          info.appendChild(title);
+          info.appendChild(sub);
+
+          const amt = document.createElement('div');
+          amt.className = 'emi-item-amt';
+          amt.textContent = `₹${(parseFloat(c.spent) || 0).toLocaleString('en-IN')}`;
+
+          item.appendChild(icon);
+          item.appendChild(info);
+          item.appendChild(amt);
+          list.appendChild(item);
+        });
+      }
+
+      document.getElementById('emiModal').style.display = 'flex';
+    }
+
+    function addNewCategory() {
+      const nameInput = document.getElementById('newCatName');
+      const iconInput = document.getElementById('newCatIcon');
+
+      const name = nameInput ? nameInput.value.trim() : '';
+      const icon = iconInput ? iconInput.value.trim() || '📦' : '📦';
+
+      if (!name) {
+        alert('Please enter category name!');
+        return;
+      }
+
+      if (!categories) {
+        categories = [];
+      }
+
+      let existing = categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+      if (existing) {
+        alert('This category already exists!');
+        return;
+      }
+
+      categories.push({ id: 'cat_' + Date.now(), name: name, icon: icon, spent: 0, limit: 0, autoLimit: true });
+
+      saveDataToStorage();
+
+      if (nameInput) nameInput.value = '';
+      if (iconInput) iconInput.value = '📦';
+
+      renderBudgetPage();   // new category gets its auto limit right away
+    }
+
+    function deleteCategory(catId) {
+      if (confirm("Are you sure you want to delete this category?")) {
+        categories = categories.filter(c => c.id !== catId);
+        saveDataToStorage();
+        renderBudgetPage();   // remaining categories share the freed budget
+      }
+    }
+
+    function openLimitModal(catId) {
+      activeCatId = catId;
+      let cat = categories.find(c => c.id === catId);
+      document.getElementById('modalCatTitle').innerText = `Edit Limit: ${cat.name}`;
+      document.getElementById('inputNewLimit').value = cat.limit;
+      document.getElementById('resetAutoBtn').style.display = cat.autoLimit === false ? 'flex' : 'none';
+      document.getElementById('limitModal').style.display = 'flex';
+    }
+
+    function saveCategoryLimit() {
+      let newLimit = parseFloat(document.getElementById('inputNewLimit').value);
+      if (!isNaN(newLimit) && newLimit >= 0) {
+        let cat = categories.find(c => c.id === activeCatId);
+        cat.limit = newLimit;
+        cat.autoLimit = false;   // locked to the amount you typed
+        saveDataToStorage();
+        closeModal('limitModal');
+        renderBudgetPage();
+      }
+    }
+
+    function resetCategoryToAuto() {
+      let cat = categories.find(c => c.id === activeCatId);
+      if (cat) {
+        cat.autoLimit = true;
+        saveDataToStorage();
+        closeModal('limitModal');
+        renderBudgetPage();
+      }
+    }
+
+    function openExpenseModal(catId) {
+      activeCatId = catId;
+      let cat = categories.find(c => c.id === activeCatId);
+      document.getElementById('modalExpenseTitle').innerText = `Add Expense: ${cat.name}`;
+      document.getElementById('inputExpenseAmount').value = '';
+      document.getElementById('expenseModal').style.display = 'flex';
+    }
+
+    function saveExpense() {
+      let amt = parseFloat(document.getElementById('inputExpenseAmount').value);
+      if (!isNaN(amt) && amt > 0) {
+        let cat = categories.find(c => c.id === activeCatId);
+        cat.spent = (parseFloat(cat.spent) || 0) + amt;
+
+        userDataContainer.transactions = userDataContainer.transactions || [];
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        userDataContainer.transactions.unshift({
+          id: 'tx_' + Date.now(),
+          type: 'expense',
+          icon: cat.icon || '📦',
+          desc: `Expense - ${cat.name}`,
+          category: cat.name,
+          date: dateStr,
+          amount: amt
+        });
+
+        saveDataToStorage();
+        closeModal('expenseModal');
+        renderBudgetPage();
+      }
+    }
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function handleLogout() {
+      localStorage.removeItem('savewise_current_user');
+      window.location.href = 'login.html';
+    }
+
+    window.onload = renderBudgetPage;
+  </script>
+</body>
+</html>

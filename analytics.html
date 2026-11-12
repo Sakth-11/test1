@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaveWise AI – Analytics</title>
+
+  <!-- FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      /* Palette */
+      --blue: #2d00f7;
+      --electric-indigo: #6a00f4;
+      --ultra-violet: #8900f2;
+      --purple-1: #a100f2;
+      --purple-2: #b100e8;
+      --hyper-magenta: #bc00dd;
+      --vivid-orchid-1: #d100d1;
+      --vivid-orchid-2: #db00b6;
+      --electric-rose: #e500a4;
+      --barbie-pink: #f20089;
+
+      --bg-gradient: linear-gradient(120deg, #f7f0ff, #ece0ff, #ffe3f3, #e6e1ff, #f7f0ff);
+      --panel-bg: rgba(255, 255, 255, 0.78);
+      --panel-border: rgba(137, 0, 242, 0.22);
+      --sidebar-bg: rgba(255, 255, 255, 0.94);
+
+      --text-main: #1a0070;
+      --text-bold: #12004d;
+      --text-muted: #6a00f4;
+
+      --accent-purple: #8900f2;
+      --accent-glow: rgba(137, 0, 242, 0.28);
+      --neon-green: #059669;
+      --neon-red: #f20089;
+      --neon-cyan: #2d00f7;
+      --card-shadow: 0 10px 30px rgba(137, 0, 242, 0.1);
+
+      --gradient-btn: linear-gradient(135deg, #2d00f7, #8900f2 45%, #f20089);
+      --sidebar-w: 270px;
+    }
+
+    body.dark-theme {
+      --bg-gradient: linear-gradient(120deg, #0d0030, #1a0070, #2a0057, #14003f, #0d0030);
+      --panel-bg: rgba(26, 0, 112, 0.5);
+      --panel-border: rgba(177, 0, 232, 0.35);
+      --sidebar-bg: rgba(13, 0, 48, 0.92);
+      --text-main: #f1e8ff;
+      --text-bold: #ffffff;
+      --text-muted: #d9c2ff;
+      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ANIMATED GRADIENT BACKGROUND */
+    body {
+      background: var(--bg-gradient);
+      background-size: 300% 300%;
+      animation: gradientShift 16s ease infinite;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ---------- BACKGROUND LAYERS ---------- */
+    .bg-animation {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-animation, .bg-animation * { transition: none; }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.5;
+      animation: pulseGlow 8s infinite alternate ease-in-out;
+    }
+
+    .orb-1 { width: 350px; height: 350px; background: rgba(45, 0, 247, 0.35); top: -50px; left: -50px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(242, 0, 137, 0.3); bottom: -80px; right: -80px; animation-delay: -4s; }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(1) translate(0, 0); opacity: 0.45; }
+      100% { transform: scale(1.2) translate(20px, 20px); opacity: 0.75; }
+    }
+
+    .sparkline {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 34%;
+      opacity: 0.5;
+    }
+
+    .spark-line {
+      fill: none;
+      stroke: url(#sparkGrad);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+      animation: drawLine 7s ease-in-out infinite;
+    }
+
+    .spark-area {
+      fill: url(#areaGrad);
+      opacity: 0;
+      animation: fadeArea 7s ease-in-out infinite;
+    }
+
+    @keyframes drawLine {
+      0%   { stroke-dashoffset: 2000; }
+      60%  { stroke-dashoffset: 0; }
+      90%  { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+
+    @keyframes fadeArea {
+      0%, 30% { opacity: 0; }
+      60%, 90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .wealth-symbol {
+      position: absolute;
+      font-size: 2.2rem;
+      opacity: 0.5;
+      animation: floatUp 12s infinite linear;
+    }
+
+    .wealth-symbol:nth-of-type(1) { left: 30%; animation-duration: 9s;  animation-delay: 0s; }
+    .wealth-symbol:nth-of-type(2) { left: 45%; animation-duration: 13s; animation-delay: 2s; }
+    .wealth-symbol:nth-of-type(3) { left: 60%; animation-duration: 10s; animation-delay: 1s; }
+    .wealth-symbol:nth-of-type(4) { left: 78%; animation-duration: 14s; animation-delay: 4s; }
+    .wealth-symbol:nth-of-type(5) { left: 92%; animation-duration: 11s; animation-delay: 3s; }
+
+    @keyframes floatUp {
+      0% { transform: translateY(105vh) rotate(0deg) scale(0.8); opacity: 0; }
+      20% { opacity: 0.5; }
+      80% { opacity: 0.5; }
+      100% { transform: translateY(-10vh) rotate(360deg) scale(1.1); opacity: 0; }
+    }
+
+    /* Floating transaction cards – only over the content area */
+    .txn-layer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: var(--sidebar-w);
+      right: 0;
+      overflow: hidden;
+    }
+
+    .txn-card {
+      position: absolute;
+      bottom: -100px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 18px 11px 12px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      box-shadow: 0 12px 28px rgba(137, 0, 242, 0.22);
+      white-space: nowrap;
+      opacity: 0;
+      animation: txnRise var(--dur) linear var(--delay) infinite;
+    }
+
+    body.dark-theme .txn-card { background: rgba(40, 8, 120, 0.9); }
+
+    .txn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #fff;
+    }
+
+    .txn-card.credit .txn-icon { background: linear-gradient(135deg, #2d00f7, #8900f2); }
+    .txn-card.debit  .txn-icon { background: linear-gradient(135deg, #db00b6, #f20089); }
+
+    .txn-info { display: flex; flex-direction: column; line-height: 1.25; }
+    .txn-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+    .txn-amount { font-size: 1.02rem; font-weight: 800; }
+    .txn-card.credit .txn-amount { color: var(--blue); }
+    .txn-card.debit  .txn-amount { color: var(--barbie-pink); }
+
+    body.dark-theme .txn-card.credit .txn-amount { color: #b5adff; }
+
+    @keyframes txnRise {
+      0%   { transform: translateY(0) rotate(var(--rot)); opacity: 0; }
+      8%   { opacity: 1; }
+      88%  { opacity: 1; }
+      100% { transform: translateY(-125vh) rotate(calc(var(--rot) * -1)); opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body, .orb, .wealth-symbol, .txn-card, .spark-line, .spark-area { animation: none; }
+      .txn-layer { display: none; }
+      .spark-line { stroke-dashoffset: 0; }
+    }
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      z-index: 10;
+      box-shadow: 8px 0 30px rgba(137, 0, 242, 0.08);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      margin-bottom: 36px;
+      padding: 0 8px;
+    }
+
+    .brand-icon {
+      width: 46px;
+      height: 46px;
+      background: var(--gradient-btn);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 8px 20px var(--accent-glow);
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      border-radius: 16px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .nav-item i {
+      font-size: 1.15rem;
+      color: var(--ultra-violet);
+    }
+
+    .nav-item:hover {
+      background: rgba(137, 0, 242, 0.1);
+      color: var(--text-bold);
+      transform: translateX(5px);
+      border-color: rgba(137, 0, 242, 0.22);
+    }
+
+    .nav-item.active {
+      background: var(--gradient-btn);
+      color: #ffffff !important;
+      font-weight: 800;
+      box-shadow: 0 8px 20px rgba(137, 0, 242, 0.35);
+    }
+
+    .nav-item.active i { color: #ffffff !important; }
+
+    .nav-item.logout {
+      color: var(--barbie-pink);
+      font-weight: 800;
+      margin-top: auto;
+      background: rgba(242, 0, 137, 0.06);
+      border: 1px solid rgba(242, 0, 137, 0.2);
+    }
+
+    .nav-item.logout i { color: var(--barbie-pink); }
+
+    .nav-item.logout:hover {
+      background: rgba(242, 0, 137, 0.15);
+      color: var(--electric-rose);
+    }
+
+    /* ---------- MAIN ---------- */
+    .main-wrapper {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 40px;
+      max-width: 1280px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .user-greeting h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      letter-spacing: -0.5px;
+    }
+
+    .user-greeting p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .insights-box {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 22px;
+      padding: 24px;
+      margin-bottom: 32px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: var(--card-shadow);
+    }
+
+    .insights-box h4 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--text-bold);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .insights-box p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .insights-box p + p { margin-top: 8px; }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .chart-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 22px;
+      padding: 24px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: var(--card-shadow);
+    }
+
+    .chart-card:hover {
+      box-shadow: 0 15px 35px rgba(137, 0, 242, 0.18);
+    }
+
+    .chart-card h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .full-width-chart {
+      grid-column: 1 / -1;
+    }
+
+    .chart-empty {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 16px;
+    }
+
+    .chart-empty a {
+      color: var(--electric-rose);
+      font-weight: 800;
+      text-decoration: none;
+      margin-left: 6px;
+    }
+
+    .chart-empty a:hover { text-decoration: underline; }
+
+    @media (max-width: 900px) {
+      :root { --sidebar-w: 80px; }
+      .sidebar { padding: 20px 10px; }
+      .brand span, .nav-item span { display: none; }
+      .main-wrapper { padding: 22px; }
+      .analytics-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BACKGROUND: orbs + savings graph + symbols + transaction cards -->
+  <div class="bg-animation" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <svg class="sparkline" viewBox="0 0 1200 200" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="sparkGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#2d00f7"/>
+          <stop offset="50%" stop-color="#bc00dd"/>
+          <stop offset="100%" stop-color="#f20089"/>
+        </linearGradient>
+        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8900f2" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#8900f2" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="spark-area" d="M0,170 L100,150 L200,160 L320,115 L430,130 L540,85 L650,100 L760,60 L880,75 L990,35 L1100,50 L1200,15 L1200,200 L0,200 Z"/>
+      <path class="spark-line" d="M0,170 L100,150 L200,160 L320,115 L430,130 L540,85 L650,100 L760,60 L880,75 L990,35 L1100,50 L1200,15"/>
+    </svg>
+
+    <div class="wealth-symbol">🪙</div>
+    <div class="wealth-symbol">💵</div>
+    <div class="wealth-symbol">📊</div>
+    <div class="wealth-symbol">💰</div>
+    <div class="wealth-symbol">💳</div>
+
+    <div class="txn-layer" id="txnLayer"></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <span>SaveWise AI</span>
+    </div>
+    <ul class="nav-links">
+      <a href="dashboard.html" class="nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </a>
+      <a href="budget.html" class="nav-item">
+        <i class="fa-solid fa-wallet"></i>
+        <span>Budget</span>
+      </a>
+      <a href="transactions.html" class="nav-item">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Transactions</span>
+      </a>
+      <a href="goals.html" class="nav-item">
+        <i class="fa-solid fa-bullseye"></i>
+        <span>Savings Goals</span>
+      </a>
+      <a href="analytics.html" class="nav-item active">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Analytics</span>
+      </a>
+      <a href="chatbot.html" class="nav-item">
+        <i class="fa-solid fa-robot"></i>
+        <span>Finora AI Chat</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <i class="fa-solid fa-gear"></i>
+        <span>Settings</span>
+      </a>
+      <a href="javascript:void(0);" class="nav-item logout" onclick="handleLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+      </a>
+    </ul>
+  </div>
+
+  <div class="main-wrapper">
+    <div class="header-bar">
+      <div class="user-greeting">
+        <h2>Financial Analytics & Reports 📈</h2>
+        <p>Deep dive into your daily spending trends, budget health and savings goals per user session.</p>
+      </div>
+    </div>
+
+    <div class="insights-box">
+      <h4><i class="fa-solid fa-shield-halved" style="color: var(--accent-purple);"></i> Finora AI Deep Financial Intelligence</h4>
+      <p id="aiAnalyticsInsight">Analyzing your transaction timeline and financial health score...</p>
+      <p id="aiGoalInsight"></p>
+    </div>
+
+    <div class="analytics-grid">
+      <div class="chart-card">
+        <h3><i class="fa-solid fa-chart-line" style="color: var(--accent-purple);"></i> Daily Spending Trend</h3>
+        <div style="height: 250px; position: relative;">
+          <canvas id="analyticsTrendChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3><i class="fa-solid fa-chart-pie" style="color: var(--neon-cyan);"></i> Category Expense Breakdown</h3>
+        <div style="height: 250px; position: relative;">
+          <canvas id="analyticsCategoryChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card full-width-chart">
+        <h3><i class="fa-solid fa-chart-bar" style="color: var(--neon-green);"></i> Income vs Expense Comparison</h3>
+        <div style="height: 260px; position: relative;">
+          <canvas id="analyticsCompareChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Savings Goals Chart -->
+      <div class="chart-card full-width-chart">
+        <h3><i class="fa-solid fa-bullseye" style="color: var(--barbie-pink);"></i> Savings Goals Progress</h3>
+        <div style="height: 300px; position: relative;">
+          <canvas id="analyticsGoalChart"></canvas>
+          <div class="chart-empty" id="emptyGoals">No savings goals yet. <a href="goals.html">Add a goal</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- Floating transaction cards (background) ---------- */
+    (function buildTransactions() {
+      const layer = document.getElementById('txnLayer');
+      const txns = [
+        { icon: '💼', title: 'Salary Credited',  amount: '+₹50,000', type: 'credit' },
+        { icon: '🍔', title: 'Swiggy',           amount: '-₹320',    type: 'debit'  },
+        { icon: '🏦', title: 'Savings Deposit',  amount: '+₹5,000',  type: 'credit' },
+        { icon: '🛒', title: 'Grocery',          amount: '-₹1,450',  type: 'debit'  },
+        { icon: '📈', title: 'Mutual Fund SIP',  amount: '-₹2,000',  type: 'debit'  },
+        { icon: '🎁', title: 'Cashback',         amount: '+₹150',    type: 'credit' },
+        { icon: '⚡', title: 'EB Bill',          amount: '-₹890',    type: 'debit'  },
+        { icon: '☕', title: 'Coffee',           amount: '-₹120',    type: 'debit'  },
+        { icon: '💸', title: 'Freelance Income', amount: '+₹12,500', type: 'credit' },
+        { icon: '🚕', title: 'Cab Ride',         amount: '-₹260',    type: 'debit'  },
+        { icon: '📱', title: 'Mobile Recharge',  amount: '-₹299',    type: 'debit'  },
+        { icon: '🏠', title: 'Rent Received',    amount: '+₹8,000',  type: 'credit' },
+        { icon: '🎬', title: 'Movie Tickets',    amount: '-₹540',    type: 'debit'  },
+        { icon: '💊', title: 'Pharmacy',         amount: '-₹410',    type: 'debit'  }
+      ];
+
+      txns.forEach((t, i) => {
+        const dur = 13 + Math.random() * 7;                 // 13s - 20s
+        const el = document.createElement('div');
+        el.className = 'txn-card ' + t.type;
+        el.style.left = (2 + (i * 7.1) % 72) + '%';
+        el.style.setProperty('--dur', dur + 's');
+        el.style.setProperty('--delay', (-Math.random() * dur) + 's');
+        el.style.setProperty('--rot', (Math.random() * 8 - 4) + 'deg');
+        el.innerHTML =
+          '<div class="txn-icon">' + t.icon + '</div>' +
+          '<div class="txn-info">' +
+            '<span class="txn-title">' + t.title + '</span>' +
+            '<span class="txn-amount">' + t.amount + '</span>' +
+          '</div>';
+        layer.appendChild(el);
+      });
+    })();
+
+    /* ---------- Analytics logic ---------- */
+
+    // 1. Strict Multi-User Session Redirection
+    const currentUserEmail = localStorage.getItem('savewise_current_user');
+    if (!currentUserEmail) {
+      alert("No active session found. Please login first!");
+      window.location.href = 'login.html';
+    }
+
+    const userScopedKey = `savewise_userData_${currentUserEmail}`;
+
+    function getStorageData() {
+      let data = JSON.parse(localStorage.getItem(userScopedKey));
+      if (!data) {
+        data = {
+          profile: { name: currentUserEmail.split('@')[0], email: currentUserEmail, baseIncome: 0, currency: '₹' },
+          budget: [],
+          transactions: [],
+          goals: [],
+          customTotalLimit: 0,
+          theme: 'light'
+        };
+        localStorage.setItem(userScopedKey, JSON.stringify(data));
+      }
+      return data;
+    }
+
+    let userDataContainer = getStorageData();
+
+    function applyUserTheme() {
+      const savedTheme = userDataContainer.theme || localStorage.getItem('savewise_theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList.remove('dark-theme');
+      }
+    }
+
+    let analyticsTrendChart = null;
+    let analyticsCategoryChart = null;
+    let analyticsBarChart = null;
+    let analyticsGoalChart = null;
+
+    const PALETTE = ['#2d00f7', '#6a00f4', '#8900f2', '#a100f2', '#bc00dd', '#d100d1', '#db00b6', '#e500a4', '#f20089'];
+
+    function renderAnalytics() {
+      userDataContainer = getStorageData();
+      applyUserTheme();
+
+      const isDark = document.body.classList.contains('dark-theme');
+      const chartTextColor = isDark ? '#e6d8ff' : '#1a0070';
+      const chartGridColor = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(137, 0, 242, 0.12)';
+
+      let baseIncome = parseFloat(userDataContainer.profile?.baseIncome) || 0;
+      let transactions = userDataContainer.transactions || [];
+      let categories = userDataContainer.budget || [];
+      let goals = userDataContainer.goals || [];
+
+      let addedIncome = transactions
+        .filter(t => (t.type || '').toUpperCase() === 'INCOME')
+        .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+
+      let totalIncome = baseIncome + addedIncome;
+
+      let totalExpense = transactions
+        .filter(t => (t.type || '').toUpperCase() === 'EXPENSE')
+        .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+
+      // Group Daily Expenses (Strictly User Specific)
+      let dateMap = {};
+      transactions
+        .filter(t => (t.type || '').toUpperCase() === 'EXPENSE')
+        .forEach(t => {
+          let dateKey = t.date ? t.date.split(',')[0] : 'Recent';
+          dateMap[dateKey] = (dateMap[dateKey] || 0) + (parseFloat(t.amount) || 0);
+        });
+
+      let trendLabels = Object.keys(dateMap);
+      let trendData = Object.values(dateMap);
+
+      if (trendLabels.length === 0) {
+        trendLabels = ['No Expenses'];
+        trendData = [0];
+      }
+
+      // Group Category Expenses (Strictly User Specific)
+      let catMap = {};
+      categories.forEach(c => {
+        catMap[c.name] = parseFloat(c.spent) || 0;
+      });
+
+      let catLabels = Object.keys(catMap);
+      let catData = Object.values(catMap);
+
+      if (catLabels.length === 0 || catData.every(v => v === 0)) {
+        catLabels = ['No Category Expenses'];
+        catData = [0];
+      }
+
+      // 1. Line Chart: Daily Spending Trend
+      if (analyticsTrendChart) analyticsTrendChart.destroy();
+      const ctx1 = document.getElementById('analyticsTrendChart').getContext('2d');
+      analyticsTrendChart = new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: trendLabels,
+          datasets: [{
+            label: 'Daily Expense (₹)',
+            data: trendData,
+            borderColor: '#8900f2',
+            backgroundColor: 'rgba(137, 0, 242, 0.18)',
+            pointBackgroundColor: '#f20089',
+            pointBorderColor: '#ffffff',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: chartTextColor, font: { family: 'Plus Jakarta Sans', weight: '700' } } } },
+          scales: {
+            x: { ticks: { color: chartTextColor, font: { weight: '700' } }, grid: { color: chartGridColor } },
+            y: { ticks: { color: chartTextColor, font: { weight: '700' } }, grid: { color: chartGridColor } }
+          }
+        }
+      });
+
+      // 2. Doughnut Chart: Category Expense Breakdown
+      if (analyticsCategoryChart) analyticsCategoryChart.destroy();
+      const ctx2 = document.getElementById('analyticsCategoryChart').getContext('2d');
+      analyticsCategoryChart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: catLabels,
+          datasets: [{
+            data: catData,
+            backgroundColor: PALETTE,
+            borderWidth: 2,
+            borderColor: isDark ? '#1a0070' : '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { color: chartTextColor, font: { family: 'Plus Jakarta Sans', weight: '700' } } } }
+        }
+      });
+
+      // 3. Bar Chart: Income vs Expense Comparison
+      if (analyticsBarChart) analyticsBarChart.destroy();
+      const ctx3 = document.getElementById('analyticsCompareChart').getContext('2d');
+      analyticsBarChart = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: ['Total Income', 'Total Expenses', 'Net Balance'],
+          datasets: [{
+            data: [totalIncome, totalExpense, Math.max(0, totalIncome - totalExpense)],
+            backgroundColor: ['#2d00f7', '#f20089', '#8900f2'],
+            borderRadius: 10,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: chartTextColor, font: { weight: '800' } }, grid: { display: false } },
+            y: { ticks: { color: chartTextColor, font: { weight: '700' } }, grid: { color: chartGridColor } }
+          }
+        }
+      });
+
+      // 4. Savings Goals Chart (Saved vs Target bars + Progress % line)
+      renderGoalChart(goals, isDark, chartTextColor, chartGridColor);
+
+      // Dynamic AI Insight Text
+      let savingsRate = totalIncome > 0 ? (((totalIncome - totalExpense) / totalIncome) * 100).toFixed(1) : 0;
+      document.getElementById('aiAnalyticsInsight').innerText = `Your savings rate is ${savingsRate}%. Total recorded income stands at ₹${totalIncome.toLocaleString('en-IN')} against total expenses of ₹${totalExpense.toLocaleString('en-IN')}. Tracking daily trends helps maintain long-term wealth targets!`;
+      document.getElementById('aiGoalInsight').innerText = buildGoalInsight(goals);
+    }
+
+    function renderGoalChart(goals, isDark, chartTextColor, chartGridColor) {
+      if (analyticsGoalChart) { analyticsGoalChart.destroy(); analyticsGoalChart = null; }
+
+      const empty = document.getElementById('emptyGoals');
+      if (!goals || goals.length === 0) {
+        empty.style.display = 'flex';
+        return;
+      }
+      empty.style.display = 'none';
+
+      const labels = goals.map(g => `${g.icon || '🎯'} ${g.name}`);
+      const targets = goals.map(g => parseFloat(g.target) || 0);
+      const saved = goals.map(g => parseFloat(g.saved) || 0);
+      const pcts = goals.map((g, i) => targets[i] > 0 ? Math.min(100, Math.round((saved[i] / targets[i]) * 100)) : 0);
+
+      const ctx4 = document.getElementById('analyticsGoalChart').getContext('2d');
+      analyticsGoalChart = new Chart(ctx4, {
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              type: 'bar',
+              label: 'Saved (₹)',
+              data: saved,
+              backgroundColor: '#8900f2',
+              borderRadius: 10,
+              borderWidth: 0,
+              yAxisID: 'y'
+            },
+            {
+              type: 'bar',
+              label: 'Target (₹)',
+              data: targets,
+              backgroundColor: '#f20089',
+              borderRadius: 10,
+              borderWidth: 0,
+              yAxisID: 'y'
+            },
+            {
+              type: 'line',
+              label: 'Progress (%)',
+              data: pcts,
+              borderColor: '#2d00f7',
+              backgroundColor: '#2d00f7',
+              pointBackgroundColor: '#ffffff',
+              pointBorderColor: '#2d00f7',
+              pointBorderWidth: 3,
+              pointRadius: 5,
+              tension: 0.4,
+              borderWidth: 3,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { labels: { color: chartTextColor, font: { family: 'Plus Jakarta Sans', weight: '700' } } } },
+          scales: {
+            x: { ticks: { color: chartTextColor, font: { weight: '800' } }, grid: { display: false } },
+            y: {
+              position: 'left',
+              ticks: { color: chartTextColor, font: { weight: '700' } },
+              grid: { color: chartGridColor }
+            },
+            y1: {
+              position: 'right',
+              min: 0,
+              max: 100,
+              ticks: { color: chartTextColor, font: { weight: '700' }, callback: v => v + '%' },
+              grid: { drawOnChartArea: false }
+            }
+          }
+        }
+      });
+    }
+
+    function buildGoalInsight(goals) {
+      if (!goals || goals.length === 0) {
+        return 'No savings goals set yet. Add a target on the Savings Goals page and it will show up in the goals chart below.';
+      }
+
+      const list = goals.map(g => {
+        const t = parseFloat(g.target) || 0;
+        const s = parseFloat(g.saved) || 0;
+        return { name: g.name, pct: t > 0 ? Math.min(100, Math.round((s / t) * 100)) : 0, left: Math.max(0, t - s) };
+      });
+
+      const completed = list.filter(g => g.pct >= 100).length;
+      const active = list.filter(g => g.pct < 100).sort((a, b) => b.pct - a.pct);
+
+      if (active.length === 0) {
+        return `Awesome! All ${completed} of your goal(s) are completed 🎉`;
+      }
+
+      const next = active[0];
+      return `Goals: ${completed} completed, ${active.length} in progress. "${next.name}" is ${next.pct}% complete – you need ₹${next.left.toLocaleString('en-IN')} more to reach it.`;
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('savewise_current_user');
+      window.location.href = 'login.html';
+    }
+
+    window.onload = function() {
+      renderAnalytics();
+    };
+  </script>
+</body>
+</html>

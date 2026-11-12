@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaveWise AI – Home</title>
+
+  <!-- FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Palette */
+      --blue: #2d00f7;
+      --electric-indigo: #6a00f4;
+      --ultra-violet: #8900f2;
+      --purple-1: #a100f2;
+      --purple-2: #b100e8;
+      --hyper-magenta: #bc00dd;
+      --vivid-orchid-1: #d100d1;
+      --vivid-orchid-2: #db00b6;
+      --electric-rose: #e500a4;
+      --barbie-pink: #f20089;
+
+      --bg-gradient: linear-gradient(120deg, #f7f0ff, #ece0ff, #ffe3f3, #e6e1ff, #f7f0ff);
+      --panel-bg: rgba(255, 255, 255, 0.78);
+      --panel-border: rgba(137, 0, 242, 0.22);
+      --sidebar-bg: rgba(255, 255, 255, 0.94);
+
+      --text-main: #1a0070;
+      --text-bold: #12004d;
+      --text-muted: #6a00f4;
+
+      --accent-purple: #8900f2;
+      --accent-glow: rgba(137, 0, 242, 0.28);
+      --neon-green: #059669;
+      --neon-red: #f20089;
+      --neon-cyan: #2d00f7;
+      --neon-yellow: #d97706;
+      --card-shadow: 0 10px 30px rgba(137, 0, 242, 0.1);
+
+      --gradient-btn: linear-gradient(135deg, #2d00f7, #8900f2 45%, #f20089);
+      --sidebar-w: 270px;
+    }
+
+    body.dark-theme {
+      --bg-gradient: linear-gradient(120deg, #0d0030, #1a0070, #2a0057, #14003f, #0d0030);
+      --panel-bg: rgba(26, 0, 112, 0.5);
+      --panel-border: rgba(177, 0, 232, 0.35);
+      --sidebar-bg: rgba(13, 0, 48, 0.92);
+      --text-main: #f1e8ff;
+      --text-bold: #ffffff;
+      --text-muted: #d9c2ff;
+      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ANIMATED GRADIENT BACKGROUND */
+    body {
+      background: var(--bg-gradient);
+      background-size: 300% 300%;
+      animation: gradientShift 16s ease infinite;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ---------- BACKGROUND LAYERS ---------- */
+    .bg-animation {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-animation, .bg-animation * { transition: none; }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.5;
+      animation: pulseGlow 8s infinite alternate ease-in-out;
+    }
+
+    .orb-1 { width: 350px; height: 350px; background: rgba(45, 0, 247, 0.35); top: -50px; left: -50px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(242, 0, 137, 0.3); bottom: -80px; right: -80px; animation-delay: -4s; }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(1) translate(0, 0); opacity: 0.45; }
+      100% { transform: scale(1.2) translate(20px, 20px); opacity: 0.75; }
+    }
+
+    /* Animated savings sparkline */
+    .sparkline {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 34%;
+      opacity: 0.5;
+    }
+
+    .spark-line {
+      fill: none;
+      stroke: url(#sparkGrad);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+      animation: drawLine 7s ease-in-out infinite;
+    }
+
+    .spark-area {
+      fill: url(#areaGrad);
+      opacity: 0;
+      animation: fadeArea 7s ease-in-out infinite;
+    }
+
+    @keyframes drawLine {
+      0%   { stroke-dashoffset: 2000; }
+      60%  { stroke-dashoffset: 0; }
+      90%  { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+
+    @keyframes fadeArea {
+      0%, 30% { opacity: 0; }
+      60%, 90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Floating wealth symbols */
+    .wealth-symbol {
+      position: absolute;
+      font-size: 2.2rem;
+      opacity: 0.5;
+      animation: floatUp 12s infinite linear;
+    }
+
+    .wealth-symbol:nth-of-type(1) { left: 30%; animation-duration: 9s;  animation-delay: 0s; }
+    .wealth-symbol:nth-of-type(2) { left: 45%; animation-duration: 13s; animation-delay: 2s; }
+    .wealth-symbol:nth-of-type(3) { left: 60%; animation-duration: 10s; animation-delay: 1s; }
+    .wealth-symbol:nth-of-type(4) { left: 78%; animation-duration: 14s; animation-delay: 4s; }
+    .wealth-symbol:nth-of-type(5) { left: 92%; animation-duration: 11s; animation-delay: 3s; }
+
+    @keyframes floatUp {
+      0% { transform: translateY(105vh) rotate(0deg) scale(0.8); opacity: 0; }
+      20% { opacity: 0.5; }
+      80% { opacity: 0.5; }
+      100% { transform: translateY(-10vh) rotate(360deg) scale(1.1); opacity: 0; }
+    }
+
+    /* Floating transaction cards – only over the content area (not under sidebar) */
+    .txn-layer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: var(--sidebar-w);
+      right: 0;
+      overflow: hidden;
+    }
+
+    .txn-card {
+      position: absolute;
+      bottom: -100px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 18px 11px 12px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      box-shadow: 0 12px 28px rgba(137, 0, 242, 0.22);
+      white-space: nowrap;
+      opacity: 0;
+      animation: txnRise var(--dur) linear var(--delay) infinite;
+    }
+
+    body.dark-theme .txn-card {
+      background: rgba(40, 8, 120, 0.9);
+    }
+
+    .txn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #fff;
+    }
+
+    .txn-card.credit .txn-icon { background: linear-gradient(135deg, #2d00f7, #8900f2); }
+    .txn-card.debit  .txn-icon { background: linear-gradient(135deg, #db00b6, #f20089); }
+
+    .txn-info { display: flex; flex-direction: column; line-height: 1.25; }
+    .txn-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+    .txn-amount { font-size: 1.02rem; font-weight: 800; }
+    .txn-card.credit .txn-amount { color: var(--blue); }
+    .txn-card.debit  .txn-amount { color: var(--barbie-pink); }
+
+    body.dark-theme .txn-card.credit .txn-amount { color: #b5adff; }
+
+    @keyframes txnRise {
+      0%   { transform: translateY(0) rotate(var(--rot)); opacity: 0; }
+      8%   { opacity: 1; }
+      88%  { opacity: 1; }
+      100% { transform: translateY(-125vh) rotate(calc(var(--rot) * -1)); opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body, .orb, .wealth-symbol, .txn-card, .spark-line, .spark-area { animation: none; }
+      .txn-layer { display: none; }
+      .spark-line { stroke-dashoffset: 0; }
+    }
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      z-index: 10;
+      box-shadow: 8px 0 30px rgba(137, 0, 242, 0.08);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      margin-bottom: 36px;
+      padding: 0 8px;
+    }
+
+    .brand-icon {
+      width: 46px;
+      height: 46px;
+      background: var(--gradient-btn);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 1.3rem;
+      box-shadow: 0 8px 20px var(--accent-glow);
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      border-radius: 16px;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .nav-item i {
+      font-size: 1.15rem;
+      color: var(--ultra-violet);
+    }
+
+    .nav-item:hover {
+      background: rgba(137, 0, 242, 0.1);
+      color: var(--text-bold);
+      transform: translateX(5px);
+      border-color: rgba(137, 0, 242, 0.22);
+    }
+
+    .nav-item.active {
+      background: var(--gradient-btn);
+      color: #ffffff !important;
+      font-weight: 800;
+      box-shadow: 0 8px 20px rgba(137, 0, 242, 0.35);
+    }
+
+    .nav-item.active i {
+      color: #ffffff !important;
+    }
+
+    .nav-item.logout {
+      color: var(--barbie-pink);
+      font-weight: 800;
+      margin-top: auto;
+      background: rgba(242, 0, 137, 0.06);
+      border: 1px solid rgba(242, 0, 137, 0.2);
+    }
+
+    .nav-item.logout i {
+      color: var(--barbie-pink);
+    }
+
+    .nav-item.logout:hover {
+      background: rgba(242, 0, 137, 0.15);
+      color: var(--electric-rose);
+    }
+
+    /* ---------- MAIN ---------- */
+    .main-wrapper {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 40px;
+      max-width: 1350px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-bar {
+      margin-bottom: 32px;
+    }
+
+    .user-greeting h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      letter-spacing: -0.5px;
+    }
+
+    .user-greeting p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+      gap: 22px;
+      margin-bottom: 34px;
+    }
+
+    .summary-card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid var(--panel-border);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .summary-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(137, 0, 242, 0.18);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 14px;
+    }
+
+    .card-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(161, 0, 242, 0.09);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .card-val {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text-bold);
+    }
+
+    .visual-dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1.2fr;
+      gap: 28px;
+      margin-bottom: 34px;
+    }
+
+    .visual-card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid var(--panel-border);
+      border-radius: 26px;
+      padding: 30px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .visual-card h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .badge-status {
+      font-size: 0.82rem;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-weight: 800;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 18px;
+      background: rgba(161, 0, 242, 0.12);
+      border-radius: 30px;
+      overflow: hidden;
+      padding: 3px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 30px;
+      background: linear-gradient(90deg, #2d00f7, #8900f2 50%, #f20089);
+      width: 0%;
+    }
+
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .action-btn-card {
+      background: rgba(161, 0, 242, 0.06);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-bold);
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .action-btn-card:hover {
+      background: var(--gradient-btn);
+      color: #ffffff;
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(137, 0, 242, 0.3);
+    }
+
+    .action-btn-card:hover i {
+      color: #ffffff !important;
+    }
+
+    .action-btn-card i {
+      font-size: 1.7rem;
+    }
+
+    .highlights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+    }
+
+    .feature-box {
+      background: var(--panel-bg);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid var(--panel-border);
+      border-radius: 22px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .feature-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .feature-info h5 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      margin-bottom: 2px;
+    }
+
+    .feature-info p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    @media (max-width: 960px) {
+      :root { --sidebar-w: 80px; }
+      .sidebar { padding: 20px 10px; }
+      .brand span, .nav-item span { display: none; }
+      .main-wrapper { padding: 22px; }
+      .visual-dashboard-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BACKGROUND: orbs + savings graph + symbols + transaction cards -->
+  <div class="bg-animation" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <svg class="sparkline" viewBox="0 0 1200 200" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="sparkGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#2d00f7"/>
+          <stop offset="50%" stop-color="#bc00dd"/>
+          <stop offset="100%" stop-color="#f20089"/>
+        </linearGradient>
+        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8900f2" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#8900f2" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="spark-area" d="M0,170 L100,150 L200,160 L320,115 L430,130 L540,85 L650,100 L760,60 L880,75 L990,35 L1100,50 L1200,15 L1200,200 L0,200 Z"/>
+      <path class="spark-line" d="M0,170 L100,150 L200,160 L320,115 L430,130 L540,85 L650,100 L760,60 L880,75 L990,35 L1100,50 L1200,15"/>
+    </svg>
+
+    <div class="wealth-symbol">🪙</div>
+    <div class="wealth-symbol">💵</div>
+    <div class="wealth-symbol">📊</div>
+    <div class="wealth-symbol">💰</div>
+    <div class="wealth-symbol">💳</div>
+
+    <div class="txn-layer" id="txnLayer"></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <span>SaveWise AI</span>
+    </div>
+    <ul class="nav-links">
+      <a href="dashboard.html" class="nav-item active">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </a>
+      <a href="budget.html" class="nav-item">
+        <i class="fa-solid fa-wallet"></i>
+        <span>Budget</span>
+      </a>
+      <a href="transactions.html" class="nav-item">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Transactions</span>
+      </a>
+      <a href="goals.html" class="nav-item">
+        <i class="fa-solid fa-bullseye"></i>
+        <span>Savings Goals</span>
+      </a>
+      <a href="analytics.html" class="nav-item">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Analytics</span>
+      </a>
+      <a href="chatbot.html" class="nav-item">
+        <i class="fa-solid fa-robot"></i>
+        <span>Finora AI Chat</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <i class="fa-solid fa-gear"></i>
+        <span>Settings</span>
+      </a>
+      <a href="javascript:void(0);" class="nav-item logout" onclick="handleLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+      </a>
+    </ul>
+  </div>
+
+  <div class="main-wrapper">
+    <div class="header-bar">
+      <div class="user-greeting">
+        <h2 id="userGreetingText">Welcome back! 👋</h2>
+        <p>Live synchronized metrics & automated intelligent personal finances.</p>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="card-head">
+          <span>Monthly Income</span>
+          <div class="card-icon" style="color: var(--neon-green);"><i class="fa-solid fa-arrow-trend-up"></i></div>
+        </div>
+        <div class="card-val" id="dispIncome">₹0</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-head">
+          <span>Total Budget Limit</span>
+          <div class="card-icon" style="color: var(--accent-purple);"><i class="fa-solid fa-bullseye"></i></div>
+        </div>
+        <div class="card-val" id="dispTotalLimit">₹0</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-head">
+          <span>Monthly Spent</span>
+          <div class="card-icon" style="color: var(--neon-red);"><i class="fa-solid fa-arrow-trend-down"></i></div>
+        </div>
+        <div class="card-val" id="dispSpent">₹0</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-head">
+          <span>Active EMI / Loans</span>
+          <div class="card-icon" style="color: var(--neon-yellow);"><i class="fa-solid fa-landmark"></i></div>
+        </div>
+        <div class="card-val" id="dispEmi">₹0</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-head">
+          <span>Total Balance</span>
+          <div class="card-icon" style="color: var(--neon-cyan);"><i class="fa-solid fa-vault"></i></div>
+        </div>
+        <div class="card-val" id="dispBalance">₹0</div>
+      </div>
+    </div>
+
+    <div class="visual-dashboard-grid">
+      <div class="visual-card">
+        <h3>
+          <span><i class="fa-solid fa-gauge-high" style="color: var(--accent-purple); margin-right: 10px;"></i> Budget Usage Meter</span>
+          <span class="badge-status" id="healthBadge">Safe Zone</span>
+        </h3>
+
+        <div style="margin-top: 26px;">
+          <div class="meter-label">
+            <span>Budget Limit Used</span>
+            <span id="meterPercent" style="color: var(--text-bold);">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-fill" id="meterFill"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 30px; font-size: 0.88rem; color: var(--text-muted); font-weight: 700;">
+          <div><i class="fa-solid fa-circle" style="color: var(--neon-green); font-size: 0.6rem; margin-right: 6px;"></i> Safe Zone (&lt;70%)</div>
+          <div><i class="fa-solid fa-circle" style="color: var(--neon-yellow); font-size: 0.6rem; margin-right: 6px;"></i> Warning Level (70%-90%)</div>
+          <div><i class="fa-solid fa-circle" style="color: var(--neon-red); font-size: 0.6rem; margin-right: 6px;"></i> Critical Alert (&gt;90%)</div>
+        </div>
+      </div>
+
+      <div class="visual-card">
+        <h3><span><i class="fa-solid fa-bolt" style="color: var(--accent-purple); margin-right: 10px;"></i> Quick Actions</span></h3>
+        <div class="shortcuts-grid">
+          <a href="budget.html" class="action-btn-card">
+            <i class="fa-solid fa-plus-circle" style="color: var(--neon-green);"></i>
+            <span>Add Budget</span>
+          </a>
+          <a href="transactions.html" class="action-btn-card">
+            <i class="fa-solid fa-receipt" style="color: var(--neon-cyan);"></i>
+            <span>Log Expense</span>
+          </a>
+          <a href="goals.html" class="action-btn-card">
+            <i class="fa-solid fa-bullseye" style="color: var(--accent-purple);"></i>
+            <span>Set Goal</span>
+          </a>
+          <a href="analytics.html" class="action-btn-card">
+            <i class="fa-solid fa-chart-line" style="color: var(--neon-yellow);"></i>
+            <span>View Report</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlights-grid">
+      <div class="feature-box">
+        <div class="feature-icon" style="background: rgba(137, 0, 242, 0.12); color: var(--accent-purple);">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="feature-info">
+          <h5>Finora AI Assistant</h5>
+          <p>Smart real-time spending insights & audits.</p>
+        </div>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon" style="background: rgba(5, 150, 105, 0.12); color: var(--neon-green);">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </div>
+        <div class="feature-info">
+          <h5>Instant Local Sync</h5>
+          <p>Instantaneous browser storage synchronization.</p>
+        </div>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon" style="background: rgba(45, 0, 247, 0.12); color: var(--neon-cyan);">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div class="feature-info">
+          <h5>Milestone Goals</h5>
+          <p>Automated target percentage calculations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- Floating transaction cards (background) ---------- */
+    (function buildTransactions() {
+      const layer = document.getElementById('txnLayer');
+      const txns = [
+        { icon: '💼', title: 'Salary Credited',  amount: '+₹50,000', type: 'credit' },
+        { icon: '🍔', title: 'Swiggy',           amount: '-₹320',    type: 'debit'  },
+        { icon: '🏦', title: 'Savings Deposit',  amount: '+₹5,000',  type: 'credit' },
+        { icon: '🛒', title: 'Grocery',          amount: '-₹1,450',  type: 'debit'  },
+        { icon: '📈', title: 'Mutual Fund SIP',  amount: '-₹2,000',  type: 'debit'  },
+        { icon: '🎁', title: 'Cashback',         amount: '+₹150',    type: 'credit' },
+        { icon: '⚡', title: 'EB Bill',          amount: '-₹890',    type: 'debit'  },
+        { icon: '☕', title: 'Coffee',           amount: '-₹120',    type: 'debit'  },
+        { icon: '💸', title: 'Freelance Income', amount: '+₹12,500', type: 'credit' },
+        { icon: '🚕', title: 'Cab Ride',         amount: '-₹260',    type: 'debit'  },
+        { icon: '📱', title: 'Mobile Recharge',  amount: '-₹299',    type: 'debit'  },
+        { icon: '🏠', title: 'Rent Received',    amount: '+₹8,000',  type: 'credit' },
+        { icon: '🎬', title: 'Movie Tickets',    amount: '-₹540',    type: 'debit'  },
+        { icon: '💊', title: 'Pharmacy',         amount: '-₹410',    type: 'debit'  }
+      ];
+
+      txns.forEach((t, i) => {
+        const dur = 13 + Math.random() * 7;                 // 13s - 20s
+        const el = document.createElement('div');
+        el.className = 'txn-card ' + t.type;
+        el.style.left = (2 + (i * 7.1) % 72) + '%';         // spread across content area
+        el.style.setProperty('--dur', dur + 's');
+        el.style.setProperty('--delay', (-Math.random() * dur) + 's');
+        el.style.setProperty('--rot', (Math.random() * 8 - 4) + 'deg');
+        el.innerHTML =
+          '<div class="txn-icon">' + t.icon + '</div>' +
+          '<div class="txn-info">' +
+            '<span class="txn-title">' + t.title + '</span>' +
+            '<span class="txn-amount">' + t.amount + '</span>' +
+          '</div>';
+        layer.appendChild(el);
+      });
+    })();
+
+    /* ---------- Dashboard logic ---------- */
+    function renderDashboardData() {
+      // 1. Strict Multi-User Security & Session Check
+      const currentUserEmail = localStorage.getItem('savewise_current_user');
+      if (!currentUserEmail) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // 2. Strict User-Isolated Container
+      const userScopedKey = `savewise_userData_${currentUserEmail}`;
+      let userDataContainer = JSON.parse(localStorage.getItem(userScopedKey));
+
+      if (!userDataContainer) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Apply Saved Theme (Dark / Light Mode)
+      const savedTheme = userDataContainer.theme || localStorage.getItem('savewise_theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList.remove('dark-theme');
+      }
+
+      // Personalized Greeting
+      const userName = userDataContainer.profile?.name || currentUserEmail.split('@')[0];
+      document.getElementById('userGreetingText').innerText = `Welcome back, ${userName}! 👋`;
+
+      // 3. Financial Calculations per User Isolation Key
+      const income = parseFloat(userDataContainer.profile?.baseIncome) || 0;
+
+      const budgetCategories = userDataContainer.budget || [];
+
+      // Total Budget Limit fetched directly from independent customTotalLimit or 0
+      const totalLimit = userDataContainer.customTotalLimit !== undefined
+        ? parseFloat(userDataContainer.customTotalLimit)
+        : 0;
+
+      const transactionsList = userDataContainer.transactions || [];
+      const spent = transactionsList
+        .filter(t => t.type && t.type.toLowerCase() === 'expense')
+        .reduce((acc, t) => acc + (parseFloat(t.amount) || 0), 0);
+
+      const totalSpentFinal = transactionsList.length === 0
+        ? budgetCategories.reduce((acc, cur) => acc + (parseFloat(cur.spent) || 0), 0)
+        : spent;
+
+      const emi = budgetCategories
+        .filter(c => c.name && (c.name.toLowerCase().includes('emi') || c.name.toLowerCase().includes('loan')))
+        .reduce((sum, c) => sum + (parseFloat(c.spent) || 0), 0);
+
+      const balance = income - totalSpentFinal;
+      const currencySymbol = userDataContainer.profile?.currency || '₹';
+
+      // Render Display Text Values
+      document.getElementById('dispIncome').innerText = `${currencySymbol}${income.toLocaleString('en-IN')}`;
+      document.getElementById('dispTotalLimit').innerText = `${currencySymbol}${totalLimit.toLocaleString('en-IN')}`;
+      document.getElementById('dispSpent').innerText = `${currencySymbol}${totalSpentFinal.toLocaleString('en-IN')}`;
+      document.getElementById('dispEmi').innerText = `${currencySymbol}${emi.toLocaleString('en-IN')}`;
+      document.getElementById('dispBalance').innerText = `${currencySymbol}${balance.toLocaleString('en-IN')}`;
+
+      // Meter Progress Fill
+      let pct = totalLimit > 0 ? Math.min(Math.round((totalSpentFinal / totalLimit) * 100), 100) : 0;
+      document.getElementById('meterPercent').innerText = `${pct}%`;
+
+      const meterFill = document.getElementById('meterFill');
+      meterFill.style.width = `${pct}%`;
+
+      const healthBadge = document.getElementById('healthBadge');
+      if (pct < 70) {
+        healthBadge.innerText = 'Safe Zone';
+        healthBadge.style.background = 'rgba(5, 150, 105, 0.12)';
+        healthBadge.style.color = '#059669';
+      } else if (pct <= 90) {
+        healthBadge.innerText = 'Warning Level';
+        healthBadge.style.background = 'rgba(217, 119, 6, 0.12)';
+        healthBadge.style.color = '#d97706';
+      } else {
+        healthBadge.innerText = 'Critical Alert';
+        healthBadge.style.background = 'rgba(242, 0, 137, 0.12)';
+        healthBadge.style.color = '#f20089';
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('savewise_current_user');
+      window.location.href = 'login.html';
+    }
+
+    window.onload = renderDashboardData;
+  </script>
+</body>
+</html>

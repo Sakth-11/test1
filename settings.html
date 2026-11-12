@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaveWise AI – Settings & Preferences</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Palette */
+      --blue: #2d00f7;
+      --electric-indigo: #6a00f4;
+      --ultra-violet: #8900f2;
+      --purple-1: #a100f2;
+      --purple-2: #b100e8;
+      --hyper-magenta: #bc00dd;
+      --vivid-orchid-1: #d100d1;
+      --vivid-orchid-2: #db00b6;
+      --electric-rose: #e500a4;
+      --barbie-pink: #f20089;
+
+      --bg-gradient: linear-gradient(120deg, #f7f0ff, #ece0ff, #ffe3f3, #e6e1ff, #f7f0ff);
+      --panel-bg: rgba(255, 255, 255, 0.78);
+      --panel-border: rgba(137, 0, 242, 0.22);
+      --sidebar-bg: rgba(255, 255, 255, 0.94);
+      --input-bg: rgba(161, 0, 242, 0.06);
+
+      --text-main: #1a0070;
+      --text-bold: #12004d;
+      --text-muted: #6a00f4;
+
+      --accent-purple: #8900f2;
+      --accent-glow: rgba(137, 0, 242, 0.28);
+      --neon-green: #059669;
+      --neon-red: #f20089;
+      --card-shadow: 0 10px 30px rgba(137, 0, 242, 0.1);
+
+      --gradient-btn: linear-gradient(135deg, #2d00f7, #8900f2 45%, #f20089);
+      --sidebar-w: 270px;
+    }
+
+    body.dark-theme, html.dark-theme {
+      --bg-gradient: linear-gradient(120deg, #0d0030, #1a0070, #2a0057, #14003f, #0d0030);
+      --panel-bg: rgba(26, 0, 112, 0.5);
+      --panel-border: rgba(177, 0, 232, 0.35);
+      --sidebar-bg: rgba(13, 0, 48, 0.92);
+      --input-bg: rgba(255, 255, 255, 0.08);
+      --text-main: #f1e8ff;
+      --text-bold: #ffffff;
+      --text-muted: #d9c2ff;
+      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ANIMATED GRADIENT BACKGROUND */
+    body {
+      background: var(--bg-gradient);
+      background-size: 300% 300%;
+      animation: gradientShift 16s ease infinite;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ---------- BACKGROUND LAYERS ---------- */
+    .bg-animation {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-animation, .bg-animation * { transition: none; }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.5;
+      animation: pulseGlow 8s infinite alternate ease-in-out;
+    }
+
+    .orb-1 { width: 350px; height: 350px; background: rgba(45, 0, 247, 0.35); top: -50px; left: -50px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(242, 0, 137, 0.3); bottom: -80px; right: -80px; animation-delay: -4s; }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(1) translate(0, 0); opacity: 0.45; }
+      100% { transform: scale(1.2) translate(20px, 20px); opacity: 0.75; }
+    }
+
+    .sparkline {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 34%;
+      opacity: 0.5;
+    }
+
+    .spark-line {
+      fill: none;
+      stroke: url(#sparkGrad);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+      animation: drawLine 7s ease-in-out infinite;
+    }
+
+    .spark-area {
+      fill: url(#areaGrad);
+      opacity: 0;
+      animation: fadeArea 7s ease-in-out infinite;
+    }
+
+    @keyframes drawLine {
+      0%   { stroke-dashoffset: 2000; }
+      60%  { stroke-dashoffset: 0; }
+      90%  { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+
+    @keyframes fadeArea {
+      0%, 30% { opacity: 0; }
+      60%, 90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .wealth-symbol {
+      position: absolute;
+      font-size: 2.2rem;
+      opacity: 0.5;
+      animation: floatUp 12s infinite linear;
+    }
+
+    .wealth-symbol:nth-of-type(1) { left: 30%; animation-duration: 9s;  animation-delay: 0s; }
+    .wealth-symbol:nth-of-type(2) { left: 45%; animation-duration: 13s; animation-delay: 2s; }
+    .wealth-symbol:nth-of-type(3) { left: 60%; animation-duration: 10s; animation-delay: 1s; }
+    .wealth-symbol:nth-of-type(4) { left: 78%; animation-duration: 14s; animation-delay: 4s; }
+    .wealth-symbol:nth-of-type(5) { left: 92%; animation-duration: 11s; animation-delay: 3s; }
+
+    @keyframes floatUp {
+      0% { transform: translateY(105vh) rotate(0deg) scale(0.8); opacity: 0; }
+      20% { opacity: 0.5; }
+      80% { opacity: 0.5; }
+      100% { transform: translateY(-10vh) rotate(360deg) scale(1.1); opacity: 0; }
+    }
+
+    /* Floating transaction cards – only over the content area */
+    .txn-layer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: var(--sidebar-w);
+      right: 0;
+      overflow: hidden;
+    }
+
+    .txn-card {
+      position: absolute;
+      bottom: -100px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 18px 11px 12px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      box-shadow: 0 12px 28px rgba(137, 0, 242, 0.22);
+      white-space: nowrap;
+      opacity: 0;
+      animation: txnRise var(--dur) linear var(--delay) infinite;
+    }
+
+    body.dark-theme .txn-card { background: rgba(40, 8, 120, 0.9); }
+
+    .txn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #fff;
+    }
+
+    .txn-card.credit .txn-icon { background: linear-gradient(135deg, #2d00f7, #8900f2); }
+    .txn-card.debit  .txn-icon { background: linear-gradient(135deg, #db00b6, #f20089); }
+
+    .txn-info { display: flex; flex-direction: column; line-height: 1.25; }
+    .txn-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+    .txn-amount { font-size: 1.02rem; font-weight: 800; }
+    .txn-card.credit .txn-amount { color: var(--blue); }
+    .txn-card.debit  .txn-amount { color: var(--barbie-pink); }
+
+    body.dark-theme .txn-card.credit .txn-amount { color: #b5adff; }
+
+    @keyframes txnRise {
+      0%   { transform: translateY(0) rotate(var(--rot)); opacity: 0; }
+      8%   { opacity: 1; }
+      88%  { opacity: 1; }
+      100% { transform: translateY(-125vh) rotate(calc(var(--rot) * -1)); opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body, .orb, .wealth-symbol, .txn-card, .spark-line, .spark-area { animation: none; }
+      .txn-layer { display: none; }
+      .spark-line { stroke-dashoffset: 0; }
+    }
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      z-index: 10;
+      box-shadow: 8px 0 30px rgba(137, 0, 242, 0.08);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      margin-bottom: 36px;
+      padding: 0 8px;
+    }
+
+    .brand-icon {
+      width: 46px;
+      height: 46px;
+      background: var(--gradient-btn);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 1.3rem;
+      box-shadow: 0 8px 20px var(--accent-glow);
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      border-radius: 16px;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .nav-item i {
+      font-size: 1.15rem;
+      color: var(--ultra-violet);
+    }
+
+    .nav-item:hover {
+      background: rgba(137, 0, 242, 0.1);
+      color: var(--text-bold);
+      transform: translateX(5px);
+      border-color: rgba(137, 0, 242, 0.22);
+    }
+
+    .nav-item.active {
+      background: var(--gradient-btn);
+      color: #ffffff !important;
+      font-weight: 800;
+      box-shadow: 0 8px 20px rgba(137, 0, 242, 0.35);
+    }
+
+    .nav-item.active i { color: #ffffff !important; }
+
+    .nav-item.logout {
+      color: var(--barbie-pink);
+      font-weight: 800;
+      margin-top: auto;
+      background: rgba(242, 0, 137, 0.06);
+      border: 1px solid rgba(242, 0, 137, 0.2);
+    }
+
+    .nav-item.logout i { color: var(--barbie-pink); }
+
+    .nav-item.logout:hover {
+      background: rgba(242, 0, 137, 0.15);
+      color: var(--electric-rose);
+    }
+
+    /* ---------- MAIN ---------- */
+    .main-wrapper {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 40px;
+      max-width: 1000px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-bar {
+      margin-bottom: 28px;
+    }
+
+    .user-greeting h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      letter-spacing: -0.5px;
+    }
+
+    .user-greeting p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .settings-card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid var(--panel-border);
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 24px;
+    }
+
+    .settings-card:hover {
+      box-shadow: 0 15px 35px rgba(137, 0, 242, 0.18);
+    }
+
+    .settings-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .settings-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .theme-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .theme-btn {
+      padding: 16px;
+      border-radius: 16px;
+      border: 2px solid var(--panel-border);
+      background: var(--input-bg);
+      color: var(--text-bold);
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .theme-btn:hover {
+      border-color: var(--purple-2);
+      background: rgba(137, 0, 242, 0.1);
+    }
+
+    .theme-btn.active {
+      background: var(--gradient-btn);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 8px 20px rgba(137, 0, 242, 0.35);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      color: var(--text-bold);
+      font-weight: 700;
+      outline: none;
+      font-size: 0.92rem;
+    }
+
+    .form-group input:focus {
+      border-color: var(--purple-2);
+      box-shadow: 0 0 0 4px rgba(177, 0, 232, 0.18);
+    }
+
+    .btn-action-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .btn-save {
+      flex: 1;
+      padding: 13px 24px;
+      background: var(--gradient-btn);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(137, 0, 242, 0.35);
+      font-size: 0.92rem;
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(242, 0, 137, 0.4);
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 13px 24px;
+      background: rgba(137, 0, 242, 0.1);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      color: var(--accent-purple);
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: var(--gradient-btn);
+      color: #fff;
+    }
+
+    /* Danger zone */
+    .danger-card {
+      border-color: rgba(242, 0, 137, 0.4);
+    }
+
+    .btn-danger {
+      flex: 1;
+      padding: 13px 24px;
+      background: rgba(242, 0, 137, 0.1);
+      border: 1px solid rgba(242, 0, 137, 0.35);
+      border-radius: 12px;
+      color: var(--neon-red);
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-danger:hover {
+      background: var(--neon-red);
+      color: #fff;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 300;
+      max-width: 340px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: var(--gradient-btn);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.9rem;
+      box-shadow: 0 12px 30px rgba(137, 0, 242, 0.4);
+      opacity: 0;
+      transform: translateY(16px);
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.error {
+      background: #f20089;
+    }
+
+    @media (max-width: 900px) {
+      :root { --sidebar-w: 80px; }
+      .sidebar { padding: 20px 10px; }
+      .brand span, .nav-item span { display: none; }
+      .main-wrapper { padding: 22px; }
+      .form-row { grid-template-columns: 1fr; }
+      .btn-action-group { flex-direction: column; }
+    }
+  </style>
+
+  <!-- Instant Theme Sync Loader -->
+  <script>
+    (function() {
+      let currentUser = localStorage.getItem('savewise_current_user');
+      let savedTheme = localStorage.getItem('savewise_theme');
+      if (currentUser) {
+        let userData = JSON.parse(localStorage.getItem(`savewise_userData_${currentUser}`));
+        if (userData && userData.theme) savedTheme = userData.theme;
+      }
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark-theme');
+        window.addEventListener('DOMContentLoaded', () => document.body.classList.add('dark-theme'));
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- BACKGROUND: orbs + savings graph + symbols + transaction cards -->
+  <div class="bg-animation" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <svg class="sparkline" viewBox="0 0 1200 200" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="sparkGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#2d00f7"/>
+          <stop offset="50%" stop-color="#bc00dd"/>
+          <stop offset="100%" stop-color="#f20089"/>
+        </linearGradient>
+        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8900f2" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#8900f2" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="spark-area" d="M0,170 L100,150 L200,160 L320,115 L430,130 L540,85 L650,100 L760,60 L880,75 L990,35 L1100,50 L1200,15 L1200,200 L0,200 Z"/>
+      <path class="spark-line" d="M0,170 L100,150 L200,160 L320,115 L430,130 L540,85 L650,100 L760,60 L880,75 L990,35 L1100,50 L1200,15"/>
+    </svg>
+
+    <div class="wealth-symbol">🪙</div>
+    <div class="wealth-symbol">💵</div>
+    <div class="wealth-symbol">📊</div>
+    <div class="wealth-symbol">💰</div>
+    <div class="wealth-symbol">💳</div>
+
+    <div class="txn-layer" id="txnLayer"></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <span>SaveWise AI</span>
+    </div>
+    <ul class="nav-links">
+      <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-house"></i> <span>Home</span></a>
+      <a href="budget.html" class="nav-item"><i class="fa-solid fa-wallet"></i> <span>Budget</span></a>
+      <a href="transactions.html" class="nav-item"><i class="fa-solid fa-list-check"></i> <span>Transactions</span></a>
+      <a href="goals.html" class="nav-item"><i class="fa-solid fa-bullseye"></i> <span>Savings Goals</span></a>
+      <a href="analytics.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> <span>Analytics</span></a>
+      <a href="chatbot.html" class="nav-item"><i class="fa-solid fa-robot"></i> <span>Finora AI Chat</span></a>
+      <a href="settings.html" class="nav-item active"><i class="fa-solid fa-gear"></i> <span>Settings</span></a>
+      <a href="javascript:void(0);" class="nav-item logout" onclick="handleLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+      </a>
+    </ul>
+  </div>
+
+  <div class="main-wrapper">
+    <div class="header-bar">
+      <div class="user-greeting">
+        <h2>App Settings & Preferences ⚙️</h2>
+        <p>Manage your profile, finances, security, backup data, and switch themes.</p>
+      </div>
+    </div>
+
+    <!-- Personal Details -->
+    <div class="settings-card">
+      <div class="settings-title"><i class="fa-solid fa-user-pen" style="color: var(--accent-purple);"></i> Personal Details</div>
+      <div class="form-group">
+        <label>Display Name</label>
+        <input type="text" id="inputProfileName" placeholder="Enter your name">
+      </div>
+      <div class="form-group">
+        <label>Email Address (Account ID)</label>
+        <input type="email" id="inputProfileEmail" disabled style="opacity: 0.7; cursor: not-allowed;">
+      </div>
+      <button class="btn-save" onclick="saveProfileSettings()"><i class="fa-solid fa-check"></i> Save Personal Details</button>
+    </div>
+
+    <!-- Financial Preferences -->
+    <div class="settings-card">
+      <div class="settings-title"><i class="fa-solid fa-indian-rupee-sign" style="color: var(--accent-purple);"></i> Financial Preferences</div>
+      <p class="settings-desc">Inga set pannura income and limit dhaan Dashboard, Budget page-la kaattum.</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Monthly Income (₹)</label>
+          <input type="number" id="inputBaseIncome" placeholder="e.g. 50000" min="0">
+        </div>
+        <div class="form-group">
+          <label>Total Monthly Budget Limit (₹)</label>
+          <input type="number" id="inputTotalLimit" placeholder="e.g. 30000" min="0">
+        </div>
+      </div>
+      <button class="btn-save" onclick="saveFinancialSettings()"><i class="fa-solid fa-check"></i> Save Financial Preferences</button>
+    </div>
+
+    <!-- Change Password -->
+    <div class="settings-card">
+      <div class="settings-title"><i class="fa-solid fa-key" style="color: var(--accent-purple);"></i> Change Password</div>
+      <div class="form-group">
+        <label>Current Password</label>
+        <input type="password" id="inputCurrentPass" placeholder="Enter current password" autocomplete="current-password">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="inputNewPass" placeholder="Min 6 characters" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="inputConfirmPass" placeholder="Re-enter new password" autocomplete="new-password">
+        </div>
+      </div>
+      <button class="btn-save" onclick="changePassword()"><i class="fa-solid fa-lock"></i> Update Password</button>
+    </div>
+
+    <!-- Data Backup -->
+    <div class="settings-card">
+      <div class="settings-title"><i class="fa-solid fa-cloud-arrow-down" style="color: var(--accent-purple);"></i> Data Backup & Restore</div>
+      <p class="settings-desc">Secure your app data by downloading a local backup JSON file or restoring from a previous backup.</p>
+      <div class="btn-action-group">
+        <button class="btn-secondary" onclick="exportBackupData()"><i class="fa-solid fa-download"></i> Export Backup</button>
+        <button class="btn-secondary" onclick="document.getElementById('importFile').click()"><i class="fa-solid fa-upload"></i> Restore Backup</button>
+        <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importBackupData(event)">
+      </div>
+    </div>
+
+    <!-- Appearance Mode -->
+    <div class="settings-card">
+      <div class="settings-title"><i class="fa-solid fa-palette" style="color: var(--accent-purple);"></i> Appearance Mode</div>
+      <div class="theme-options">
+        <button class="theme-btn" id="lightThemeBtn" onclick="setTheme('light')">
+          <i class="fa-solid fa-sun"></i> Light Mode
+        </button>
+        <button class="theme-btn" id="darkThemeBtn" onclick="setTheme('dark')">
+          <i class="fa-solid fa-moon"></i> Dark Mode
+        </button>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="settings-card danger-card">
+      <div class="settings-title"><i class="fa-solid fa-triangle-exclamation" style="color: var(--barbie-pink);"></i> Danger Zone</div>
+      <p class="settings-desc">Reset panna, transactions, goals, budget ellam clear aagum (profile and password apdiye irukkum). Delete Account panna, account muzhusa poidum. Idhu undo panna mudiyaadhu, mundhaadi Export Backup edunga.</p>
+      <div class="btn-action-group">
+        <button class="btn-danger" onclick="resetAllData()"><i class="fa-solid fa-rotate-left"></i> Reset All Data</button>
+        <button class="btn-danger" onclick="deleteAccount()"><i class="fa-solid fa-user-xmark"></i> Delete Account</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* ---------- Floating transaction cards (background) ---------- */
+    (function buildTransactions() {
+      const layer = document.getElementById('txnLayer');
+      const txns = [
+        { icon: '💼', title: 'Salary Credited',  amount: '+₹50,000', type: 'credit' },
+        { icon: '🍔', title: 'Swiggy',           amount: '-₹320',    type: 'debit'  },
+        { icon: '🏦', title: 'Savings Deposit',  amount: '+₹5,000',  type: 'credit' },
+        { icon: '🛒', title: 'Grocery',          amount: '-₹1,450',  type: 'debit'  },
+        { icon: '📈', title: 'Mutual Fund SIP',  amount: '-₹2,000',  type: 'debit'  },
+        { icon: '🎁', title: 'Cashback',         amount: '+₹150',    type: 'credit' },
+        { icon: '⚡', title: 'EB Bill',          amount: '-₹890',    type: 'debit'  },
+        { icon: '☕', title: 'Coffee',           amount: '-₹120',    type: 'debit'  },
+        { icon: '💸', title: 'Freelance Income', amount: '+₹12,500', type: 'credit' },
+        { icon: '🚕', title: 'Cab Ride',         amount: '-₹260',    type: 'debit'  },
+        { icon: '📱', title: 'Mobile Recharge',  amount: '-₹299',    type: 'debit'  },
+        { icon: '🏠', title: 'Rent Received',    amount: '+₹8,000',  type: 'credit' },
+        { icon: '🎬', title: 'Movie Tickets',    amount: '-₹540',    type: 'debit'  },
+        { icon: '💊', title: 'Pharmacy',         amount: '-₹410',    type: 'debit'  }
+      ];
+
+      txns.forEach((t, i) => {
+        const dur = 13 + Math.random() * 7;                 // 13s - 20s
+        const el = document.createElement('div');
+        el.className = 'txn-card ' + t.type;
+        el.style.left = (2 + (i * 7.1) % 72) + '%';
+        el.style.setProperty('--dur', dur + 's');
+        el.style.setProperty('--delay', (-Math.random() * dur) + 's');
+        el.style.setProperty('--rot', (Math.random() * 8 - 4) + 'deg');
+        el.innerHTML =
+          '<div class="txn-icon">' + t.icon + '</div>' +
+          '<div class="txn-info">' +
+            '<span class="txn-title">' + t.title + '</span>' +
+            '<span class="txn-amount">' + t.amount + '</span>' +
+          '</div>';
+        layer.appendChild(el);
+      });
+    })();
+
+    /* ---------- Toast ---------- */
+    let toastTimer = null;
+    function showToast(message, isError) {
+      const t = document.getElementById('toast');
+      t.textContent = message;
+      t.classList.toggle('error', !!isError);
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    /* ---------- Settings logic ---------- */
+    let currentUserEmail = localStorage.getItem('savewise_current_user');
+    if (!currentUserEmail) {
+      alert("No active session found. Please login first!");
+      window.location.href = 'login.html';
+    }
+
+    const userKey = `savewise_userData_${currentUserEmail}`;
+
+    function getUserData() {
+      return JSON.parse(localStorage.getItem(userKey)) || {
+        profile: { name: currentUserEmail.split('@')[0], email: currentUserEmail, baseIncome: 0, currency: '₹' },
+        budget: [],
+        transactions: [],
+        goals: [],
+        customTotalLimit: 0,
+        theme: 'light'
+      };
+    }
+
+    function loadSettings() {
+      let data = getUserData();
+
+      document.getElementById('inputProfileName').value = data.profile?.name || '';
+      document.getElementById('inputProfileEmail').value = currentUserEmail;
+      document.getElementById('inputBaseIncome').value = parseFloat(data.profile?.baseIncome) || 0;
+      document.getElementById('inputTotalLimit').value = parseFloat(data.customTotalLimit) || 0;
+
+      let currentTheme = data.theme || localStorage.getItem('savewise_theme') || 'light';
+      updateThemeButtons(currentTheme);
+    }
+
+    function setTheme(themeMode) {
+      localStorage.setItem('savewise_theme', themeMode);
+
+      let data = getUserData();
+      data.theme = themeMode;
+      localStorage.setItem(userKey, JSON.stringify(data));
+
+      if (themeMode === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.documentElement.classList.add('dark-theme');
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.documentElement.classList.remove('dark-theme');
+      }
+
+      updateThemeButtons(themeMode);
+      showToast(themeMode === 'dark' ? 'Dark mode on' : 'Light mode on');
+    }
+
+    function updateThemeButtons(theme) {
+      let lightBtn = document.getElementById('lightThemeBtn');
+      let darkBtn = document.getElementById('darkThemeBtn');
+      if (theme === 'dark') {
+        darkBtn.classList.add('active');
+        lightBtn.classList.remove('active');
+      } else {
+        lightBtn.classList.add('active');
+        darkBtn.classList.remove('active');
+      }
+    }
+
+    function saveProfileSettings() {
+      let nameVal = document.getElementById('inputProfileName').value.trim();
+      if (!nameVal) {
+        showToast('Please enter a valid name!', true);
+        return;
+      }
+
+      let data = getUserData();
+      data.profile = data.profile || {};
+      data.profile.name = nameVal;
+      localStorage.setItem(userKey, JSON.stringify(data));
+
+      // keep the login list in sync with the new name
+      let users = JSON.parse(localStorage.getItem('savewise_users_list')) || [];
+      let u = users.find(x => x.email === currentUserEmail);
+      if (u) {
+        u.name = nameVal;
+        localStorage.setItem('savewise_users_list', JSON.stringify(users));
+      }
+
+      showToast('Personal details updated successfully!');
+    }
+
+    function saveFinancialSettings() {
+      let income = parseFloat(document.getElementById('inputBaseIncome').value);
+      let limit = parseFloat(document.getElementById('inputTotalLimit').value);
+
+      if (isNaN(income) || income < 0 || isNaN(limit) || limit < 0) {
+        showToast('Enter valid income and limit amounts!', true);
+        return;
+      }
+
+      let data = getUserData();
+      data.profile = data.profile || {};
+      data.profile.baseIncome = income;
+      data.customTotalLimit = limit;
+      localStorage.setItem(userKey, JSON.stringify(data));
+
+      showToast('Financial preferences saved!');
+    }
+
+    function changePassword() {
+      let cur = document.getElementById('inputCurrentPass').value;
+      let nw = document.getElementById('inputNewPass').value;
+      let cf = document.getElementById('inputConfirmPass').value;
+
+      if (!cur || !nw || !cf) {
+        showToast('Fill all password fields!', true);
+        return;
+      }
+
+      let users = JSON.parse(localStorage.getItem('savewise_users_list')) || [];
+      let u = users.find(x => x.email === currentUserEmail);
+      if (!u) {
+        showToast('Account not found in login list!', true);
+        return;
+      }
+
+      let existing = u.password || u.pass;
+      if (existing !== cur) {
+        showToast('Current password is incorrect!', true);
+        return;
+      }
+      if (nw.length < 6) {
+        showToast('New password must be at least 6 characters!', true);
+        return;
+      }
+      if (nw !== cf) {
+        showToast('New passwords do not match!', true);
+        return;
+      }
+      if (nw === cur) {
+        showToast('New password must be different from current one!', true);
+        return;
+      }
+
+      u.password = nw;
+      delete u.pass;
+      localStorage.setItem('savewise_users_list', JSON.stringify(users));
+
+      document.getElementById('inputCurrentPass').value = '';
+      document.getElementById('inputNewPass').value = '';
+      document.getElementById('inputConfirmPass').value = '';
+      showToast('Password updated successfully!');
+    }
+
+    // Export Backup Feature
+    function exportBackupData() {
+      let dataStr = localStorage.getItem(userKey);
+      if (!dataStr) {
+        showToast('No data found to backup!', true);
+        return;
+      }
+      let blob = new Blob([dataStr], { type: 'application/json' });
+      let url = URL.createObjectURL(blob);
+      let a = document.createElement('a');
+      a.href = url;
+      a.download = `SaveWise_Backup_${currentUserEmail.split('@')[0]}_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Backup downloaded!');
+    }
+
+    // Import Backup Feature
+    function importBackupData(event) {
+      let file = event.target.files[0];
+      if (!file) return;
+
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          let importedData = JSON.parse(e.target.result);
+          if (importedData && importedData.profile) {
+            if (!confirm('Current data replace aagum. Continue pannalaama?')) {
+              event.target.value = '';
+              return;
+            }
+            // backup belongs to someone else's email? keep it tied to the logged-in account
+            importedData.profile.email = currentUserEmail;
+            localStorage.setItem(userKey, JSON.stringify(importedData));
+            showToast('Backup restored! Reloading...');
+            setTimeout(() => location.reload(), 900);
+          } else {
+            showToast('Invalid backup file format!', true);
+          }
+        } catch (err) {
+          showToast('Error parsing backup JSON file!', true);
+        }
+        event.target.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAllData() {
+      if (!confirm('Ella transactions, goals, budget data-um clear aagum. Continue pannalaama?')) return;
+
+      let data = getUserData();
+      data.transactions = [];
+      data.goals = [];
+      data.budget = [];
+      data.customTotalLimit = 0;
+      data.profile = data.profile || {};
+      data.profile.baseIncome = 0;
+      localStorage.setItem(userKey, JSON.stringify(data));
+
+      loadSettings();
+      showToast('All data has been reset!');
+    }
+
+    function deleteAccount() {
+      if (!confirm('Account permanent-a delete aagum. Continue pannalaama?')) return;
+      if (!confirm('Last confirmation: ungaloda ella data-um poidum. Sure-aa?')) return;
+
+      let users = JSON.parse(localStorage.getItem('savewise_users_list')) || [];
+      users = users.filter(x => x.email !== currentUserEmail);
+      localStorage.setItem('savewise_users_list', JSON.stringify(users));
+
+      localStorage.removeItem(userKey);
+      localStorage.removeItem(`savewise_user_${currentUserEmail}`);
+      localStorage.removeItem('savewise_current_user');
+
+      window.location.href = 'register.html';
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('savewise_current_user');
+      window.location.href = 'login.html';
+    }
+
+    window.onload = loadSettings;
+  </script>
+</body>
+</html>

@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaveWise AI – Finora AI Chat</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Palette */
+      --blue: #2d00f7;
+      --electric-indigo: #6a00f4;
+      --ultra-violet: #8900f2;
+      --purple-1: #a100f2;
+      --purple-2: #b100e8;
+      --hyper-magenta: #bc00dd;
+      --vivid-orchid-1: #d100d1;
+      --vivid-orchid-2: #db00b6;
+      --electric-rose: #e500a4;
+      --barbie-pink: #f20089;
+
+      --bg-gradient: linear-gradient(120deg, #f7f0ff, #ece0ff, #ffe3f3, #e6e1ff, #f7f0ff);
+      --panel-bg: rgba(255, 255, 255, 0.78);
+      --panel-border: rgba(137, 0, 242, 0.22);
+      --sidebar-bg: rgba(255, 255, 255, 0.94);
+      --input-bg: rgba(161, 0, 242, 0.06);
+      --bot-bubble: rgba(255, 255, 255, 0.95);
+
+      --text-main: #1a0070;
+      --text-bold: #12004d;
+      --text-muted: #6a00f4;
+
+      --accent-purple: #8900f2;
+      --accent-glow: rgba(137, 0, 242, 0.28);
+      --neon-green: #059669;
+      --neon-red: #f20089;
+      --card-shadow: 0 10px 30px rgba(137, 0, 242, 0.1);
+
+      --gradient-btn: linear-gradient(135deg, #2d00f7, #8900f2 45%, #f20089);
+      --sidebar-w: 270px;
+    }
+
+    body.dark-theme, html.dark-theme {
+      --bg-gradient: linear-gradient(120deg, #0d0030, #1a0070, #2a0057, #14003f, #0d0030);
+      --panel-bg: rgba(26, 0, 112, 0.5);
+      --panel-border: rgba(177, 0, 232, 0.35);
+      --sidebar-bg: rgba(13, 0, 48, 0.92);
+      --input-bg: rgba(255, 255, 255, 0.08);
+      --bot-bubble: rgba(60, 14, 150, 0.85);
+      --text-main: #f1e8ff;
+      --text-bold: #ffffff;
+      --text-muted: #d9c2ff;
+      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html, body { height: 100%; }
+
+    /* ANIMATED GRADIENT BACKGROUND */
+    body {
+      background: var(--bg-gradient);
+      background-size: 300% 300%;
+      animation: gradientShift 16s ease infinite;
+      color: var(--text-main);
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ---------- BACKGROUND LAYERS ---------- */
+    .bg-animation {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-animation, .bg-animation * { transition: none; }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.5;
+      animation: pulseGlow 8s infinite alternate ease-in-out;
+    }
+
+    .orb-1 { width: 350px; height: 350px; background: rgba(45, 0, 247, 0.35); top: -50px; left: -50px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(242, 0, 137, 0.3); bottom: -80px; right: -80px; animation-delay: -4s; }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(1) translate(0, 0); opacity: 0.45; }
+      100% { transform: scale(1.2) translate(20px, 20px); opacity: 0.75; }
+    }
+
+    .sparkline {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 34%;
+      opacity: 0.5;
+    }
+
+    .spark-line {
+      fill: none;
+      stroke: url(#sparkGrad);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+      animation: drawLine 7s ease-in-out infinite;
+    }
+
+    .spark-area {
+      fill: url(#areaGrad);
+      opacity: 0;
+      animation: fadeArea 7s ease-in-out infinite;
+    }
+
+    @keyframes drawLine {
+      0%   { stroke-dashoffset: 2000; }
+      60%  { stroke-dashoffset: 0; }
+      90%  { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+
+    @keyframes fadeArea {
+      0%, 30% { opacity: 0; }
+      60%, 90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .wealth-symbol {
+      position: absolute;
+      font-size: 2.2rem;
+      opacity: 0.5;
+      animation: floatUp 12s infinite linear;
+    }
+
+    .wealth-symbol:nth-of-type(1) { left: 30%; animation-duration: 9s;  animation-delay: 0s; }
+    .wealth-symbol:nth-of-type(2) { left: 45%; animation-duration: 13s; animation-delay: 2s; }
+    .wealth-symbol:nth-of-type(3) { left: 60%; animation-duration: 10s; animation-delay: 1s; }
+    .wealth-symbol:nth-of-type(4) { left: 78%; animation-duration: 14s; animation-delay: 4s; }
+    .wealth-symbol:nth-of-type(5) { left: 92%; animation-duration: 11s; animation-delay: 3s; }
+
+    @keyframes floatUp {
+      0% { transform: translateY(105vh) rotate(0deg) scale(0.8); opacity: 0; }
+      20% { opacity: 0.5; }
+      80% { opacity: 0.5; }
+      100% { transform: translateY(-10vh) rotate(360deg) scale(1.1); opacity: 0; }
+    }
+
+    /* Floating transaction cards – only over the content area */
+    .txn-layer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: var(--sidebar-w);
+      right: 0;
+      overflow: hidden;
+    }
+
+    .txn-card {
+      position: absolute;
+      bottom: -100px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 18px 11px 12px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      box-shadow: 0 12px 28px rgba(137, 0, 242, 0.22);
+      white-space: nowrap;
+      opacity: 0;
+      animation: txnRise var(--dur) linear var(--delay) infinite;
+    }
+
+    body.dark-theme .txn-card { background: rgba(40, 8, 120, 0.9); }
+
+    .txn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #fff;
+    }
+
+    .txn-card.credit .txn-icon { background: linear-gradient(135deg, #2d00f7, #8900f2); }
+    .txn-card.debit  .txn-icon { background: linear-gradient(135deg, #db00b6, #f20089); }
+
+    .txn-info { display: flex; flex-direction: column; line-height: 1.25; }
+    .txn-title { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+    .txn-amount { font-size: 1.02rem; font-weight: 800; }
+    .txn-card.credit .txn-amount { color: var(--blue); }
+    .txn-card.debit  .txn-amount { color: var(--barbie-pink); }
+
+    body.dark-theme .txn-card.credit .txn-amount { color: #b5adff; }
+
+    @keyframes txnRise {
+      0%   { transform: translateY(0) rotate(var(--rot)); opacity: 0; }
+      8%   { opacity: 1; }
+      88%  { opacity: 1; }
+      100% { transform: translateY(-125vh) rotate(calc(var(--rot) * -1)); opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body, .orb, .wealth-symbol, .txn-card, .spark-line, .spark-area, .typing span { animation: none; }
+      .txn-layer { display: none; }
+      .spark-line { stroke-dashoffset: 0; }
+    }
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--panel-border);
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      z-index: 10;
+      box-shadow: 8px 0 30px rgba(137, 0, 242, 0.08);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      margin-bottom: 36px;
+      padding: 0 8px;
+    }
+
+    .brand-icon {
+      width: 46px;
+      height: 46px;
+      background: var(--gradient-btn);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.3rem;
+      box-shadow: 0 8px 20px var(--accent-glow);
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      border-radius: 16px;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .nav-item i {
+      font-size: 1.15rem;
+      color: var(--ultra-violet);
+    }
+
+    .nav-item:hover {
+      background: rgba(137, 0, 242, 0.1);
+      color: var(--text-bold);
+      transform: translateX(5px);
+      border-color: rgba(137, 0, 242, 0.22);
+    }
+
+    .nav-item.active {
+      background: var(--gradient-btn);
+      color: #ffffff !important;
+      font-weight: 800;
+      box-shadow: 0 8px 20px rgba(137, 0, 242, 0.35);
+    }
+
+    .nav-item.active i { color: #ffffff !important; }
+
+    .nav-item.logout {
+      color: var(--barbie-pink);
+      font-weight: 800;
+      margin-top: auto;
+      background: rgba(242, 0, 137, 0.06);
+      border: 1px solid rgba(242, 0, 137, 0.2);
+    }
+
+    .nav-item.logout i { color: var(--barbie-pink); }
+
+    .nav-item.logout:hover {
+      background: rgba(242, 0, 137, 0.15);
+      color: var(--electric-rose);
+    }
+
+    /* ---------- MAIN (fits the screen height) ---------- */
+    .main-wrapper {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      height: 100vh;
+      padding: 28px 40px 28px;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .user-greeting h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-bold);
+      letter-spacing: -0.5px;
+    }
+
+    .user-greeting p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .clear-btn {
+      padding: 10px 16px;
+      min-height: 44px;
+      border-radius: 12px;
+      background: rgba(137, 0, 242, 0.1);
+      border: 1px solid var(--panel-border);
+      color: var(--accent-purple);
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .clear-btn:hover {
+      background: var(--gradient-btn);
+      color: #fff;
+    }
+
+    /* Chat shell */
+    .chat-shell {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--panel-bg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+
+    .chat-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--panel-border);
+      flex-shrink: 0;
+    }
+
+    .bot-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--gradient-btn);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+      box-shadow: 0 6px 16px var(--accent-glow);
+    }
+
+    .chat-top-info h4 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-bold);
+    }
+
+    .chat-top-info span {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--neon-green);
+    }
+
+    .chat-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .chat-messages::-webkit-scrollbar { width: 8px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(137, 0, 242, 0.3); border-radius: 10px; }
+
+    .msg-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      max-width: 82%;
+    }
+
+    .msg-row.bot { align-self: flex-start; }
+    .msg-row.user { align-self: flex-end; flex-direction: row-reverse; }
+
+    .mini-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: var(--gradient-btn);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.55;
+      white-space: pre-line;
+      word-break: break-word;
+    }
+
+    .msg-row.bot .bubble {
+      background: var(--bot-bubble);
+      border: 1px solid var(--panel-border);
+      color: var(--text-bold);
+      border-bottom-left-radius: 6px;
+    }
+
+    .msg-row.user .bubble {
+      background: var(--gradient-btn);
+      color: #fff;
+      border-bottom-right-radius: 6px;
+      box-shadow: 0 6px 18px rgba(137, 0, 242, 0.3);
+    }
+
+    .typing {
+      display: flex;
+      gap: 5px;
+      padding: 14px 16px;
+    }
+
+    .typing span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-purple);
+      animation: blink 1.2s infinite ease-in-out;
+    }
+
+    .typing span:nth-child(2) { animation-delay: 0.2s; background: var(--hyper-magenta); }
+    .typing span:nth-child(3) { animation-delay: 0.4s; background: var(--barbie-pink); }
+
+    @keyframes blink {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 0 22px 12px;
+      flex-shrink: 0;
+      max-height: 96px;
+      overflow-y: auto;
+    }
+
+    .chip {
+      padding: 8px 14px;
+      min-height: 36px;
+      border-radius: 20px;
+      background: rgba(137, 0, 242, 0.08);
+      border: 1px solid var(--panel-border);
+      color: var(--accent-purple);
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .chip:hover {
+      background: var(--gradient-btn);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .chat-input-bar {
+      display: flex;
+      gap: 12px;
+      padding: 14px 22px 18px;
+      border-top: 1px solid var(--panel-border);
+      flex-shrink: 0;
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      padding: 14px 18px;
+      background: var(--input-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      color: var(--text-bold);
+      font-weight: 700;
+      font-size: 0.93rem;
+      outline: none;
+    }
+
+    .chat-input-bar input:focus {
+      border-color: var(--purple-2);
+      box-shadow: 0 0 0 4px rgba(177, 0, 232, 0.18);
+    }
+
+    .send-btn {
+      width: 50px;
+      border: none;
+      border-radius: 14px;
+      background: var(--gradient-btn);
+      color: #fff;
+      font-size: 1.05rem;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(137, 0, 242, 0.35);
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(242, 0, 137, 0.4);
+    }
+
+    @media (max-width: 900px) {
+      :root { --sidebar-w: 80px; }
+      .sidebar { padding: 20px 10px; }
+      .brand span, .nav-item span { display: none; }
+      .main-wrapper { padding: 16px; }
+      .msg-row { max-width: 94%; }
+      .user-greeting h2 { font-size: 1.4rem; }
+      .user-greeting p { display: none; }
+      .chips { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; padding-bottom: 10px; }
+      .chip { white-space: nowrap; }
+    }
+  </style>
+
+  <!-- Instant Theme Sync Loader -->
+  <script>
+    (function() {
+      let currentUser = localStorage.getItem('savewise_current_user');
+      let savedTheme = localStorage.getItem('savewise_theme');
+      if (currentUser) {
+        let userData = JSON.parse(localStorage.getItem(`savewise_userData_${currentUser}`));
+        if (userData && userData.theme) savedTheme = userData.theme;
+      }
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark-theme');
+        window.addEventListener('DOMContentLoaded', () => document.body.classList.add('dark-theme'));
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- BACKGROUND: orbs + savings graph + symbols + transaction cards -->
+  <div class="bg-animation" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <svg class="sparkline" viewBox="0 0 1200 200" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="sparkGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#2d00f7"/>
+          <stop offset="50%" stop-color="#bc00dd"/>
+          <stop offset="100%" stop-color="#f20089"/>
+        </linearGradient>
+        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8900f2" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#8900f2" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="spark-area" d="M0,170 L100,150 L200,160 L320,115 L430,130 L540,85 L650,100 L760,60 L880,75 L990,35 L1100,50 L1200,15 L1200,200 L0,200 Z"/>
+      <path class="spark-line" d="M0,170 L100,150 L200,160 L320,115 L430,130 L540,85 L650,100 L760,60 L880,75 L990,35 L1100,50 L1200,15"/>
+    </svg>
+
+    <div class="wealth-symbol">🪙</div>
+    <div class="wealth-symbol">💵</div>
+    <div class="wealth-symbol">📊</div>
+    <div class="wealth-symbol">💰</div>
+    <div class="wealth-symbol">💳</div>
+
+    <div class="txn-layer" id="txnLayer"></div>
+  </div>
+
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <span>SaveWise AI</span>
+    </div>
+    <ul class="nav-links">
+      <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-house"></i> <span>Home</span></a>
+      <a href="budget.html" class="nav-item"><i class="fa-solid fa-wallet"></i> <span>Budget</span></a>
+      <a href="transactions.html" class="nav-item"><i class="fa-solid fa-list-check"></i> <span>Transactions</span></a>
+      <a href="goals.html" class="nav-item"><i class="fa-solid fa-bullseye"></i> <span>Savings Goals</span></a>
+      <a href="analytics.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> <span>Analytics</span></a>
+      <a href="chatbot.html" class="nav-item active"><i class="fa-solid fa-robot"></i> <span>Finora AI Chat</span></a>
+      <a href="settings.html" class="nav-item"><i class="fa-solid fa-gear"></i> <span>Settings</span></a>
+      <a href="javascript:void(0);" class="nav-item logout" onclick="handleLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+      </a>
+    </ul>
+  </div>
+
+  <div class="main-wrapper">
+    <div class="header-bar">
+      <div class="user-greeting">
+        <h2>Finora AI Chat 🤖</h2>
+        <p>Ask about your money or how to use SaveWise. Your chat stays saved until you clear it.</p>
+      </div>
+      <button class="clear-btn" onclick="clearChat()"><i class="fa-solid fa-broom"></i> Clear Chat</button>
+    </div>
+
+    <div class="chat-shell">
+      <div class="chat-top">
+        <div class="bot-avatar"><i class="fa-solid fa-robot"></i></div>
+        <div class="chat-top-info">
+          <h4>Finora AI</h4>
+          <span>● Online</span>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages"></div>
+
+      <div class="chips" id="chipsBar"></div>
+
+      <div class="chat-input-bar">
+        <input type="text" id="chatInput" placeholder="Ask me anything... (e.g. What is SaveWise?)" autocomplete="off">
+        <button class="send-btn" onclick="sendMessage()" aria-label="Send"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- Floating transaction cards (background) ---------- */
+    (function buildTransactions() {
+      const layer = document.getElementById('txnLayer');
+      const txns = [
+        { icon: '💼', title: 'Salary Credited',  amount: '+₹50,000', type: 'credit' },
+        { icon: '🍔', title: 'Swiggy',           amount: '-₹320',    type: 'debit'  },
+        { icon: '🏦', title: 'Savings Deposit',  amount: '+₹5,000',  type: 'credit' },
+        { icon: '🛒', title: 'Grocery',          amount: '-₹1,450',  type: 'debit'  },
+        { icon: '📈', title: 'Mutual Fund SIP',  amount: '-₹2,000',  type: 'debit'  },
+        { icon: '🎁', title: 'Cashback',         amount: '+₹150',    type: 'credit' },
+        { icon: '⚡', title: 'EB Bill',          amount: '-₹890',    type: 'debit'  },
+        { icon: '☕', title: 'Coffee',           amount: '-₹120',    type: 'debit'  },
+        { icon: '💸', title: 'Freelance Income', amount: '+₹12,500', type: 'credit' },
+        { icon: '🚕', title: 'Cab Ride',         amount: '-₹260',    type: 'debit'  },
+        { icon: '📱', title: 'Mobile Recharge',  amount: '-₹299',    type: 'debit'  },
+        { icon: '🏠', title: 'Rent Received',    amount: '+₹8,000',  type: 'credit' },
+        { icon: '🎬', title: 'Movie Tickets',    amount: '-₹540',    type: 'debit'  },
+        { icon: '💊', title: 'Pharmacy',         amount: '-₹410',    type: 'debit'  }
+      ];
+
+      txns.forEach((t, i) => {
+        const dur = 13 + Math.random() * 7;
+        const el = document.createElement('div');
+        el.className = 'txn-card ' + t.type;
+        el.style.left = (2 + (i * 7.1) % 72) + '%';
+        el.style.setProperty('--dur', dur + 's');
+        el.style.setProperty('--delay', (-Math.random() * dur) + 's');
+        el.style.setProperty('--rot', (Math.random() * 8 - 4) + 'deg');
+        el.innerHTML =
+          '<div class="txn-icon">' + t.icon + '</div>' +
+          '<div class="txn-info">' +
+            '<span class="txn-title">' + t.title + '</span>' +
+            '<span class="txn-amount">' + t.amount + '</span>' +
+          '</div>';
+        layer.appendChild(el);
+      });
+    })();
+
+    /* ---------- Session + data ---------- */
+    const currentUserEmail = localStorage.getItem('savewise_current_user');
+    if (!currentUserEmail) {
+      alert("No active session found. Please login first!");
+      window.location.href = 'login.html';
+    }
+
+    const userKey = `savewise_userData_${currentUserEmail}`;
+    const chatKey = `savewise_chat_${currentUserEmail}`;
+
+    function getUserData() {
+      let d = null;
+      try { d = JSON.parse(localStorage.getItem(userKey)); } catch (e) { d = null; }
+      d = d || {};
+      d.profile = d.profile || { name: (currentUserEmail || 'user').split('@')[0], baseIncome: 0, currency: '₹' };
+      d.budget = Array.isArray(d.budget) ? d.budget : [];
+      d.transactions = Array.isArray(d.transactions) ? d.transactions : [];
+      d.goals = Array.isArray(d.goals) ? d.goals : [];
+      d.savingsLog = Array.isArray(d.savingsLog) ? d.savingsLog : [];
+      d.funds = Array.isArray(d.funds) ? d.funds : [];
+      d.customTotalLimit = parseFloat(d.customTotalLimit) || 0;
+      return d;
+    }
+
+    function inr(n) {
+      return '₹' + (Number(n) || 0).toLocaleString('en-IN');
+    }
+
+    function parseDate(s) {
+      const p = String(s || '').split('-').map(Number);
+      if (p.length !== 3 || p.some(isNaN)) return null;
+      return new Date(p[0], p[1] - 1, p[2]);
+    }
+
+    function fmtDate(d) {
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function daysUntil(iso) {
+      const d = parseDate(iso);
+      if (!d) return null;
+      const t = new Date();
+      t.setHours(0, 0, 0, 0);
+      return Math.round((d - t) / 86400000);
+    }
+
+    // Same budget base the Budget page uses
+    function getBudgetBase(d) {
+      if (d.customTotalLimit > 0) return { amount: d.customTotalLimit, source: 'total' };
+      const income = parseFloat(d.profile?.baseIncome) || 0;
+      if (income > 0) return { amount: Math.round(income * 0.8), source: 'income' };
+      return { amount: 20000, source: 'default' };
+    }
+
+    function getStats() {
+      const d = getUserData();
+      const tx = d.transactions;
+      const cats = d.budget;
+
+      const baseIncome = parseFloat(d.profile?.baseIncome) || 0;
+      const addedIncome = tx.filter(t => (t.type || '').toUpperCase() === 'INCOME')
+        .reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
+      const income = baseIncome + addedIncome;
+
+      let expense = tx.filter(t => (t.type || '').toUpperCase() === 'EXPENSE')
+        .reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
+      if (tx.length === 0) expense = cats.reduce((s, c) => s + (parseFloat(c.spent) || 0), 0);
+
+      const base = getBudgetBase(d);
+      const usedPct = base.amount > 0 ? Math.round((expense / base.amount) * 100) : 0;
+      const savingsRate = income > 0 ? Math.round(((income - expense) / income) * 100) : 0;
+
+      const goalsSaved = d.goals.reduce((s, g) => s + (parseFloat(g.saved) || 0), 0);
+      const goalsTarget = d.goals.reduce((s, g) => s + (parseFloat(g.target) || 0), 0);
+
+      const policies = d.funds.filter(f => f.kind === 'policy');
+      const savers = d.funds.filter(f => f.kind !== 'policy');
+      const fundsTotal = savers.reduce((s, f) => s + (parseFloat(f.balance) || 0), 0);
+
+      return {
+        d, name: d.profile?.name || 'friend',
+        income, baseIncome, expense, balance: income - expense,
+        base, limit: base.amount, usedPct, savingsRate,
+        tx, cats, goals: d.goals, log: d.savingsLog,
+        goalsSaved, goalsTarget, policies, savers, fundsTotal
+      };
+    }
+
+    function zone(pct) {
+      if (pct < 70) return 'Safe Zone ✅';
+      if (pct <= 90) return 'Warning Level ⚠️';
+      return 'Critical Alert 🚨';
+    }
+
+    function policyLine(p) {
+      const days = daysUntil(p.nextDue);
+      let when = 'no due date';
+      if (days !== null) {
+        const due = fmtDate(parseDate(p.nextDue));
+        if (days < 0) when = `overdue by ${-days} day(s), was due ${due}`;
+        else if (days === 0) when = `due today (${due})`;
+        else when = `due in ${days} day(s) (${due})`;
+      }
+      return `• ${p.name}: ${inr(p.premium)} per ${p.freq === 'quarter' ? '3 months' : p.freq === 'month' ? 'month' : 'year'}, ${when}`;
+    }
+
+    function monthTotals(log, year) {
+      const totals = new Array(12).fill(0);
+      log.forEach(e => {
+        const x = new Date(e.ts);
+        if (!isNaN(x.getTime()) && x.getFullYear() === year) totals[x.getMonth()] += parseFloat(e.amount) || 0;
+      });
+      return totals;
+    }
+
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function yearlyAnswer(year) {
+      const s = getStats();
+      const totals = monthTotals(s.log, year);
+      const total = totals.reduce((a, b) => a + b, 0);
+      if (total === 0) return `You have no savings recorded in ${year}.\nUse Add Savings on the Savings Goals page and pick a date in ${year} to record one.`;
+
+      const best = Math.max(...totals);
+      const bi = totals.indexOf(best);
+      const active = totals.filter(v => v > 0).length;
+
+      const byItem = {};
+      s.log.forEach(e => {
+        const x = new Date(e.ts);
+        if (isNaN(x.getTime()) || x.getFullYear() !== year) return;
+        const k = e.goalName || 'Goal';
+        byItem[k] = (byItem[k] || 0) + (parseFloat(e.amount) || 0);
+      });
+      const top = Object.entries(byItem).sort((a, b) => b[1] - a[1]).slice(0, 3)
+        .map(([n, v]) => `• ${n}: ${inr(v)}`).join('\n');
+
+      return `Savings in ${year}: ${inr(total)} 💰\nBest month: ${MONTHS[bi]} (${inr(best)})\nMonthly average: ${inr(Math.round(total / active))}\n\nBy goal or fund:\n${top}`;
+    }
+
+    /* ---------- Intent engine ---------- */
+    function matchWord(q, w) {
+      if (w.length <= 3) return new RegExp('\\b' + w + '\\b').test(q);
+      return q.includes(w);
+    }
+
+    function scoreOf(q, it) {
+      let s = 0;
+      (it.keys || []).forEach(w => { if (matchWord(q, w)) s += 1; });
+      (it.strong || []).forEach(w => { if (q.includes(w)) s += 3; });
+      return s;
+    }
+
+    const INTENTS = [
+      /* ----- small talk ----- */
+      { name: 'greet', keys: ['hi', 'hello', 'hey', 'hii', 'vanakkam', 'good morning', 'good evening', 'good afternoon'],
+        when: q => q.length < 28,
+        answer: () => { const s = getStats(); return `Hello ${s.name}! 👋 I'm Finora AI.\nAsk me about your money (balance, budget, goals, funds, premiums, yearly savings) or how to use SaveWise.`; } },
+      { name: 'thanks', keys: ['thanks', 'thank you', 'thx', 'nandri'], answer: () => 'You are welcome! 😊 Ask me anything else about SaveWise or your finances.' },
+      { name: 'bye', keys: ['bye', 'goodbye', 'see you'], answer: () => 'Bye! Come back any time. Your chat will be saved here. 👋' },
+      { name: 'who', strong: ['who are you', 'your name', 'what are you', 'who made you', 'who created you'],
+        answer: () => "I'm Finora AI, the assistant inside SaveWise AI. I read your saved data (budget, transactions, goals, funds, policies) and explain how every part of the app works." },
+      { name: 'help', keys: ['help', 'commands'], strong: ['what can you do', 'how can you help', 'what can i ask', 'what can i ask you'],
+        answer: () => 'I can help with:\n• Your money: balance, income, spending, budget, category limits\n• Savings: total saved, monthly and yearly savings, goals, funds, policies\n• Premiums: next due dates for LIC, health insurance and more\n• How-to: add a goal, add savings, create a fund, pay a premium, backup, theme, password\n• About SaveWise and its pages' },
+
+      /* ----- about the project ----- */
+      { name: 'about', strong: ['what is savewise', 'about savewise', 'about this project', 'about the project', 'what is this app', 'what is this project', 'tell me about this', 'explain the project', 'explain this project', 'project details', 'what does this app do'], keys: ['savewise', 'project'],
+        answer: () => 'SaveWise AI is a personal finance tracker that runs in your browser.\n\nYou can set your income and budget, record income and expenses, create savings goals, keep funds and insurance policies, see monthly and yearly savings, view charts, and chat with me.\n\nEvery account has its own data. Nothing is sent to a server.' },
+      { name: 'pages', strong: ['what pages', 'list of pages', 'all pages', 'what features', 'list of features', 'all features', 'which pages', 'sidebar', 'menu'], keys: ['pages', 'features'],
+        answer: () => 'SaveWise pages:\n• Home: summary cards, budget meter, monthly savings, goals progress, funds and premiums\n• Budget: income, total limit, category limits, expenses, EMI info\n• Transactions: record and search income and expenses\n• Savings Goals: goals, savings history, monthly and yearly savings, funds and policies\n• Analytics: spending trend, category breakdown, income vs expense, goals chart\n• Finora AI Chat: this chat\n• Settings: profile, income and limit, password, backup, theme, reset' },
+      { name: 'home', strong: ['home page', 'dashboard', 'what is on home', 'home screen'],
+        answer: () => 'The Home page shows:\n• Cards: Monthly Income, Budget Limit, Spent, EMI, Balance, Total Saved\n• Budget Usage Meter (Safe under 70%, Warning 70-90%, Critical over 90%)\n• Monthly Savings for the last 6 months\n• Goals Progress bars\n• Funds and the next premium due dates' },
+      { name: 'analytics_page', strong: ['analytics page', 'what is analytics', 'what charts', 'which charts', 'charts in analytics', 'analytics charts'],
+        answer: () => 'The Analytics page has 4 charts:\n1. Daily Spending Trend (line)\n2. Category Expense Breakdown (doughnut)\n3. Income vs Expense Comparison (bar)\n4. Savings Goals Progress (Saved vs Target bars with a progress % line)\nA Finora AI box above them summarises your savings rate and goals.' },
+
+      /* ----- how-to ----- */
+      { name: 'how_goal', how: true, keys: ['goal', 'target', 'deadline'], strong: ['add goal', 'create goal', 'new goal', 'set goal', 'add a goal', 'make a goal', 'laptop', 'dress'],
+        answer: () => 'To add a goal:\n1. Open Savings Goals\n2. Click Add Goal\n3. Enter icon, name (for example Laptop or Dress), target amount, amount already saved, and a deadline\n4. Click Save Goal\nTo add money later, use Add Savings on that goal.' },
+      { name: 'how_savings', how: true, keys: ['savings', 'deposit', 'save money', 'saved date', 'old date'], strong: ['add savings', 'add money', 'save into', 'old savings', 'previous savings', 'past savings'],
+        answer: () => 'To add savings to a goal:\n1. Open Savings Goals and click Add Savings (or the button on a goal row)\n2. Pick the goal, amount and the date you saved it. You can pick an older date, but not a future one\n3. The note is optional\n4. Click Add Savings\nGoal progress, Monthly Savings and Yearly Savings update at once.' },
+      { name: 'how_fund', how: true, keys: ['fund', 'sip', 'ppf', 'gold', 'emergency', 'fixed deposit'], strong: ['create fund', 'add fund', 'new fund', 'add money to fund'],
+        answer: () => 'To create a fund:\n1. Savings Goals, then the Funds & Policies tab\n2. Click Create New Fund or Policy and choose Savings Fund or Investment\n3. Enter a name (Emergency Fund, Mutual Fund SIP, FD, PPF, Gold), the amount saved, and an optional target\n4. Use + Add Money on the fund card whenever you save more' },
+      { name: 'how_policy', how: true, keys: ['policy', 'lic', 'insurance', 'premium', 'health'], strong: ['add policy', 'add lic', 'pay premium', 'new policy', 'add insurance'],
+        answer: () => 'To add an insurance policy (LIC, health, term, vehicle):\n1. Savings Goals, then Funds & Policies\n2. Create New Fund or Policy, choose Insurance Policy\n3. Enter the cover, premium, how often you pay, and the next due date\n4. When you pay, click Pay Premium. The next due date moves ahead automatically\nSaveWise warns you when a premium is due within 90 days. Insurance is protection, so there is no balance to add to.' },
+      { name: 'how_income', how: true, keys: ['income', 'salary'], strong: ['set income', 'add income', 'change income', 'monthly income'],
+        answer: () => 'To set your monthly income, use either:\n• Settings, then Financial Preferences\n• Budget, then Edit on the Monthly Income card\nExtra income can also be recorded as an Income transaction.' },
+      { name: 'how_limit', how: true, keys: ['limit', 'budget', 'category', 'categories'], strong: ['set limit', 'budget limit', 'category limit', 'auto limit', 'total budget'],
+        answer: () => 'Budget limits:\n• Set the Total Budget Limit on the Budget page (or in Settings)\n• Each category limit is split automatically from it. If no total is set, 80% of your income is used, or ₹20,000 if there is no income either\n• Click Limit on a category to type your own amount. That category is then locked, and the others share the rest\n• Use Reset to Auto in that popup to go back' },
+      { name: 'how_txn', how: true, keys: ['transaction', 'expense', 'spend'], strong: ['add transaction', 'add expense', 'record expense', 'new transaction'],
+        answer: () => 'To record a transaction:\n1. Open Transactions and click Add Transaction\n2. Choose Expense or Income, an icon, description, category and amount\n3. Save\nExpenses also count towards that category on the Budget page. You can also click + Expense on a category card.' },
+      { name: 'how_year', how: true, keys: ['year', 'yearly', 'previous year'], strong: ['yearly savings', 'last year', 'old year', 'other year'],
+        answer: () => 'Yearly Savings is on the Savings Goals page. Use the ‹ and › buttons to change the year (up to 5 years back and 5 ahead). It shows the year total, best month, monthly average, Jan to Dec bars, and the amount saved per goal and fund.\nTo fill an older year, add savings with an older date.' },
+      { name: 'how_backup', how: true, keys: ['backup', 'restore', 'export', 'import'], strong: ['download data', 'save my data', 'backup data'],
+        answer: () => 'Backup and restore are in Settings, under Data Backup & Restore.\n• Export Backup downloads a JSON file with your data\n• Restore Backup loads a file you exported earlier (it replaces the current data)' },
+      { name: 'how_theme', how: true, keys: ['theme', 'dark mode', 'light mode', 'dark', 'appearance'],
+        answer: () => 'Go to Settings, then Appearance Mode, and choose Light or Dark. It applies to every page.' },
+      { name: 'how_password', how: true, keys: ['password'], strong: ['change password', 'forgot password', 'reset password'],
+        answer: () => 'To change your password: Settings, then Change Password. Enter your current password and the new one twice.\nIf you forgot the password there is no email reset, because everything is stored in your browser.' },
+      { name: 'how_reset', how: true, keys: ['reset', 'erase', 'clear data', 'wipe'], strong: ['reset all data', 'reset data'],
+        answer: () => 'Settings, then Danger Zone, has Reset All Data. It clears transactions, goals and budget numbers but keeps your profile and password. Export a backup first, because it cannot be undone.' },
+      { name: 'how_delete_account', how: true, strong: ['delete account', 'remove account', 'close account'],
+        answer: () => 'Settings, then Danger Zone, then Delete Account removes your account and its data permanently, after two confirmations. Export a backup first.' },
+      { name: 'how_login', how: true, keys: ['login', 'logout', 'register', 'sign up', 'sign in', 'account'], strong: ['create account'],
+        answer: () => 'Register with name, email and password, then log in. Each account has its own separate data. Use Logout at the bottom of the sidebar to sign out.' },
+
+      /* ----- chat + data storage ----- */
+      { name: 'chat_history', strong: ['chat history', 'chat deleted', 'chat saved', 'delete chat', 'clear chat', 'will my chat', 'is chat saved', 'old chat', 'previous chat'],
+        answer: () => 'Your chat is saved in this browser for your account. It stays when you open other pages and come back, and even after logout. It is deleted only when you click Clear Chat.' },
+      { name: 'storage', strong: ['where is my data', 'data stored', 'is my data safe', 'privacy', 'localstorage', 'local storage', 'offline', 'server', 'where data', 'data safe'], keys: ['internet', 'secure'],
+        answer: () => 'All data is stored in your own browser (localStorage), separately for each account. Nothing is sent to a server, so it works offline too.\nBecause of that, clearing browser data or changing browser removes it. Use Settings, then Export Backup, to keep a copy.' },
+
+      /* ----- your data ----- */
+      { name: 'summary', keys: ['summary', 'overview', 'report', 'status'], strong: ['how am i doing', 'my finances', 'financial health', 'full report', 'give me a summary'],
+        answer: () => {
+          const s = getStats();
+          let t = `Overview for ${s.name}:\n• Balance: ${inr(s.balance)} (income ${inr(s.income)}, spent ${inr(s.expense)})\n• Budget: ${s.usedPct}% of ${inr(s.limit)} used (${zone(s.usedPct)})\n• Saved in goals: ${inr(s.goalsSaved)} across ${s.goals.length} goal(s)\n• In funds: ${inr(s.fundsTotal)}`;
+          const next = s.policies.map(p => ({ p, d: daysUntil(p.nextDue) })).filter(x => x.d !== null).sort((a, b) => a.d - b.d)[0];
+          if (next) t += `\n• Next premium: ${next.p.name} ${next.d < 0 ? 'overdue' : 'in ' + next.d + ' day(s)'}`;
+          return t;
+        } },
+      { name: 'balance', keys: ['balance', 'remaining', 'money left', 'migudhi', 'meedham'], strong: ['how much money', 'current balance', 'what is my balance', 'my balance'],
+        answer: () => {
+          const s = getStats();
+          if (s.income === 0 && s.expense === 0) return 'No income or expenses yet. Set your income in Settings and add entries in Transactions.';
+          return `Your balance is ${inr(s.balance)} 💰\nIncome: ${inr(s.income)}\nExpense: ${inr(s.expense)}\nSavings rate: ${s.savingsRate}%`;
+        } },
+      { name: 'income', keys: ['income', 'salary', 'earn', 'varumanam'], strong: ['my income', 'how much income'],
+        answer: () => {
+          const s = getStats();
+          if (s.income === 0) return 'Your income is not set. Add it in Settings, then Financial Preferences.';
+          return `Total income is ${inr(s.income)}.\nBase monthly income: ${inr(s.baseIncome)}\nAdded through transactions: ${inr(s.income - s.baseIncome)}`;
+        } },
+      { name: 'expense', keys: ['spent', 'spend', 'expense', 'expenses', 'selavu', 'spending'], strong: ['how much have i spent', 'my spending', 'total expense'],
+        answer: () => {
+          const s = getStats();
+          if (s.expense === 0) return 'No expenses recorded so far. 👍';
+          const n = s.tx.filter(t => (t.type || '').toUpperCase() === 'EXPENSE').length;
+          return `You have spent ${inr(s.expense)}${n ? ` across ${n} transaction(s)` : ''}.\nBudget used: ${s.usedPct}% of ${inr(s.limit)} (${zone(s.usedPct)})`;
+        } },
+      { name: 'budget', keys: ['budget', 'zone', 'safe zone'], strong: ['budget status', 'budget left', 'am i over budget'],
+        answer: () => {
+          const s = getStats();
+          const note = s.base.source === 'total' ? '' : s.base.source === 'income' ? ' (auto: 80% of your income)' : ' (auto: default base, set your income or limit)';
+          let t = `Budget limit ${inr(s.limit)}${note}.\nSpent ${inr(s.expense)} (${s.usedPct}%). Status: ${zone(s.usedPct)}`;
+          const risky = s.cats.filter(c => {
+            const l = parseFloat(c.limit) || 0;
+            return l > 0 && ((parseFloat(c.spent) || 0) / l) * 100 >= 70;
+          });
+          if (risky.length) t += '\n\nCategories to watch:\n' + risky.map(c => `• ${c.name}: ${Math.round(((parseFloat(c.spent) || 0) / (parseFloat(c.limit) || 1)) * 100)}% used`).join('\n');
+          return t;
+        } },
+      { name: 'limits', keys: ['limits', 'category limits', 'each category'], strong: ['category wise', 'all categories', 'list categories'],
+        answer: () => {
+          const s = getStats();
+          if (!s.cats.length) return 'No categories yet. Open the Budget page to create them.';
+          return 'Category limits:\n' + s.cats.map(c => `• ${c.icon || '📦'} ${c.name}: ${inr(c.spent)} of ${inr(c.limit)} (${c.autoLimit === false ? 'manual' : 'auto'})`).join('\n');
+        } },
+      { name: 'top', keys: ['top', 'highest', 'biggest', 'most', 'adhigam'], strong: ['top category', 'top spending', 'where do i spend'],
+        answer: () => {
+          const s = getStats();
+          const sorted = s.cats.filter(c => (parseFloat(c.spent) || 0) > 0).sort((a, b) => (parseFloat(b.spent) || 0) - (parseFloat(a.spent) || 0));
+          if (!sorted.length) return 'No category spending yet. Add an expense on the Budget page first.';
+          return 'Your top spending categories:\n' + sorted.slice(0, 3).map((c, i) => `${i + 1}. ${c.icon || '📦'} ${c.name}: ${inr(c.spent)}`).join('\n');
+        } },
+      { name: 'recent', keys: ['recent', 'latest', 'history', 'last 5'], strong: ['last transaction', 'recent transactions', 'latest transactions', 'transaction history'],
+        answer: () => {
+          const s = getStats();
+          if (!s.tx.length) return 'No transactions yet. Add some on the Transactions page.';
+          return 'Your latest transactions:\n' + s.tx.slice(0, 5).map(t => `${t.icon || '📦'} ${t.desc}  ${(t.type || '').toUpperCase() === 'INCOME' ? '+' : '-'}${inr(t.amount)}  (${t.date})`).join('\n');
+        } },
+      { name: 'emi', keys: ['emi', 'loan', 'kadan'], strong: ['emi details', 'my loans'],
+        answer: () => {
+          const s = getStats();
+          const emi = s.cats.filter(c => c.name && (c.name.toLowerCase().includes('emi') || c.name.toLowerCase().includes('loan')));
+          if (!emi.length) return 'No EMI or Loan category found. Add a category like "Loan EMI" on the Budget page.';
+          const total = emi.reduce((a, c) => a + (parseFloat(c.spent) || 0), 0);
+          return `Active EMI / Loans total ${inr(total)}:\n` + emi.map(c => `• ${c.name}: ${inr(c.spent)} (limit ${inr(c.limit)})`).join('\n');
+        } },
+      { name: 'goals', keys: ['goal', 'goals', 'target', 'dream', 'progress'], strong: ['goals progress', 'my goals', 'goal progress'],
+        answer: () => {
+          const s = getStats();
+          if (!s.goals.length) return 'You have no savings goals yet. Add one on the Savings Goals page 🎯';
+          const rows = s.goals.map(g => {
+            const t = parseFloat(g.target) || 0, v = parseFloat(g.saved) || 0;
+            return { g, p: t > 0 ? Math.min(100, Math.round((v / t) * 100)) : 0, left: Math.max(0, t - v) };
+          });
+          const next = rows.filter(r => r.p < 100).sort((a, b) => b.p - a.p)[0];
+          return 'Your goals:\n' + rows.map(r => `${r.g.icon || '🎯'} ${r.g.name}: ${r.p}% (${inr(r.left)} left)`).join('\n') +
+                 (next ? `\n\n"${next.g.name}" is the closest to completion. Keep going! 💪` : '\n\nAll goals completed! 🎉');
+        } },
+      { name: 'totalsaved', keys: ['saved', 'saving', 'savings'], strong: ['how much have i saved', 'how much saved', 'total saved', 'total savings', 'my savings', 'money saved'],
+        answer: () => {
+          const s = getStats();
+          if (!s.goals.length && !s.savers.length) return 'You have not saved anything yet. Create a goal or fund on the Savings Goals page, then add your savings.';
+          const now = new Date();
+          const month = s.log.filter(e => { const x = new Date(e.ts); return x.getMonth() === now.getMonth() && x.getFullYear() === now.getFullYear(); })
+            .reduce((a, e) => a + (parseFloat(e.amount) || 0), 0);
+          return `Saved in goals: ${inr(s.goalsSaved)} of ${inr(s.goalsTarget)} (${s.goals.length} goal(s))\nIn funds: ${inr(s.fundsTotal)}\nSaved this month: ${inr(month)} 💰`;
+        } },
+      { name: 'monthly', keys: ['monthly saving', 'this month', 'last month'], strong: ['saved this month', 'monthly savings', 'savings this month', 'this month saving'],
+        answer: () => {
+          const s = getStats();
+          const now = new Date();
+          const tot = (y, m) => s.log.filter(e => { const x = new Date(e.ts); return x.getFullYear() === y && x.getMonth() === m; }).reduce((a, e) => a + (parseFloat(e.amount) || 0), 0);
+          const cur = tot(now.getFullYear(), now.getMonth());
+          const pd = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          const prev = tot(pd.getFullYear(), pd.getMonth());
+          const diff = cur - prev;
+          return `Saved in ${MONTHS[now.getMonth()]}: ${inr(cur)}\nLast month: ${inr(prev)}\n${cur === 0 && prev === 0 ? 'No savings yet. Add some on the Savings Goals page.' : diff >= 0 ? `That is ${inr(diff)} more than last month ▲` : `That is ${inr(-diff)} less than last month ▼`}`;
+        } },
+      { name: 'yearly', keys: ['yearly', 'this year', 'year total'], strong: ['yearly savings', 'saved this year', 'savings this year', 'year savings'],
+        answer: () => yearlyAnswer(new Date().getFullYear()) },
+      { name: 'funds', keys: ['fund', 'funds', 'sip', 'ppf', 'fd', 'gold', 'investment', 'investments'], strong: ['my funds', 'funds list', 'total in funds', 'how much in funds'],
+        answer: () => {
+          const s = getStats();
+          if (!s.savers.length) return 'You have no funds yet. Open Savings Goals, then Funds & Policies, and create one (Emergency Fund, SIP, FD, PPF, Gold).';
+          return `Total in funds: ${inr(s.fundsTotal)}\n` + s.savers.map(f => {
+            const t = parseFloat(f.target) || 0, b = parseFloat(f.balance) || 0;
+            return `• ${f.name}: ${inr(b)}${t > 0 ? ` of ${inr(t)} (${Math.min(100, Math.round((b / t) * 100))}%)` : ''}`;
+          }).join('\n');
+        } },
+      { name: 'emergency', keys: ['emergency'], strong: ['emergency fund'],
+        answer: () => {
+          const s = getStats();
+          const f = s.savers.find(x => (x.name || '').toLowerCase().includes('emergency'));
+          const monthly = s.expense || 0;
+          if (!f) return 'You have no Emergency Fund yet. A common target is 3 to 6 months of expenses. Create one in Savings Goals, then Funds & Policies.';
+          const b = parseFloat(f.balance) || 0;
+          return `Emergency Fund: ${inr(b)}${monthly > 0 ? `\nYour recorded spending is ${inr(monthly)}, so 3 months would be about ${inr(monthly * 3)}.` : ''}`;
+        } },
+      { name: 'policies', keys: ['policies', 'policy', 'lic', 'insurance', 'premium', 'premiums'], strong: ['my policies', 'my insurance', 'my premiums', 'premiums per year'],
+        answer: () => {
+          const s = getStats();
+          if (!s.policies.length) return 'You have no insurance policies yet. Add LIC, health or term insurance in Savings Goals, then Funds & Policies.';
+          const perYear = s.policies.reduce((a, p) => a + (parseFloat(p.premium) || 0) * (12 / ({ year: 12, quarter: 3, month: 1 }[p.freq] || 12)), 0);
+          return `You have ${s.policies.length} polic${s.policies.length > 1 ? 'ies' : 'y'}. Premiums per year: ${inr(Math.round(perYear))}\n` + s.policies.map(policyLine).join('\n');
+        } },
+      { name: 'nextdue', keys: ['due', 'renew', 'renewal', 'overdue'], strong: ['next premium', 'premium due', 'when is my premium', 'next due', 'what is due'],
+        answer: () => {
+          const s = getStats();
+          const list = s.policies.map(p => ({ p, d: daysUntil(p.nextDue) })).filter(x => x.d !== null).sort((a, b) => a.d - b.d);
+          if (!list.length) return 'No premium due dates found. Add a policy in Savings Goals, then Funds & Policies.';
+          const n = list[0];
+          return `Next premium: ${n.p.name}, ${inr(n.p.premium)}, ${n.d < 0 ? `overdue by ${-n.d} day(s)` : n.d === 0 ? 'due today' : `due in ${n.d} day(s) (${fmtDate(parseDate(n.p.nextDue))})`}.` +
+                 (list.length > 1 ? '\n\nAll due dates:\n' + list.map(x => policyLine(x.p)).join('\n') : '');
+        } },
+      { name: 'rate', keys: ['savings rate', 'rate'], strong: ['savings rate', 'what percent do i save'],
+        answer: () => {
+          const s = getStats();
+          if (s.income === 0) return 'Your savings rate needs an income. Set it in Settings, then Financial Preferences.';
+          return `Your savings rate is ${s.savingsRate}% (income ${inr(s.income)}, spent ${inr(s.expense)}).\n${s.savingsRate >= 20 ? 'That is a healthy rate. 👏' : 'A common target is 20% or more.'}`;
+        } },
+      { name: 'tips', keys: ['tip', 'tips', 'advice', 'suggest', 'suggestion', 'semippu'], strong: ['saving tips', 'how to save', 'help me save', 'save more'],
+        answer: () => {
+          const s = getStats();
+          const tips = [];
+          if (s.income > 0 && s.savingsRate < 20) tips.push('Your savings rate is below 20%. Try the 50/30/20 rule: 50% needs, 30% wants, 20% savings.');
+          if (s.usedPct >= 70) tips.push(`You have used ${s.usedPct}% of your budget (${zone(s.usedPct)}). Cut non-essential spending.`);
+          const top = s.cats.slice().sort((a, b) => (parseFloat(b.spent) || 0) - (parseFloat(a.spent) || 0))[0];
+          if (top && (parseFloat(top.spent) || 0) > 0) tips.push(`"${top.name}" is your top expense (${inr(top.spent)}). Set a limit for it.`);
+          if (!s.goals.length) tips.push('Set a savings goal. A clear target makes saving easier.');
+          if (!s.savers.some(f => (f.name || '').toLowerCase().includes('emergency'))) tips.push('Start an Emergency Fund worth 3 to 6 months of expenses.');
+          tips.push('Move money to savings as soon as your salary arrives.');
+          return 'Saving tips 💡\n' + tips.slice(0, 4).map(t => '• ' + t).join('\n');
+        } }
+    ];
+
+    function getReply(raw) {
+      const q = raw.toLowerCase().replace(/[?!.,]/g, ' ').replace(/\s+/g, ' ').trim();
+
+      // a year like "2025" together with a savings word
+      const ym = q.match(/\b(20\d\d)\b/);
+      if (ym && /(sav|deposit|year|saved)/.test(q)) return yearlyAnswer(parseInt(ym[1], 10));
+
+      const isHow = !/how (much|many)/.test(q) &&
+        (/\b(how|where|eppadi|epdi|enga|steps|guide|way to|can i|can we)\b/.test(q) ||
+         /\b(add|create|make|set|change|edit|delete|remove|reset|export|backup|restore|update|new)\b/.test(q));
+
+      let best = null, bestScore = 0;
+      INTENTS.forEach(it => {
+        if (it.how && !isHow) return;
+        if (it.when && !it.when(q)) return;
+        const sc = scoreOf(q, it);
+        if (sc > bestScore) { best = it; bestScore = sc; }
+      });
+
+      if (best) return best.answer(q);
+
+      return "I'm not sure about that 😅. I can answer about your money and about how SaveWise works. Try:\n• \"What is SaveWise?\"\n• \"How do I add savings?\"\n• \"How much have I saved?\"\n• \"Next premium due\"\n• \"Savings in 2025\"";
+    }
+
+    /* ---------- Chat storage (saved until you clear it) ---------- */
+    let chatLog = [];
+
+    function loadChat() {
+      try {
+        const a = JSON.parse(localStorage.getItem(chatKey));
+        return Array.isArray(a) ? a.filter(m => m && m.text && (m.who === 'bot' || m.who === 'user')) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveChat() {
+      try {
+        localStorage.setItem(chatKey, JSON.stringify(chatLog.slice(-200)));
+      } catch (e) { /* storage full: keep chatting without saving */ }
+    }
+
+    /* ---------- Chat UI (DOM methods, no innerHTML for chat text) ---------- */
+    const messagesEl = document.getElementById('chatMessages');
+    const inputEl = document.getElementById('chatInput');
+    let busy = false;
+
+    function scrollDown() {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function renderMessage(text, who) {
+      const row = document.createElement('div');
+      row.className = 'msg-row ' + who;
+
+      if (who === 'bot') {
+        const av = document.createElement('div');
+        av.className = 'mini-avatar';
+        const ic = document.createElement('i');
+        ic.className = 'fa-solid fa-robot';
+        av.appendChild(ic);
+        row.appendChild(av);
+      }
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+      row.appendChild(bubble);
+
+      messagesEl.appendChild(row);
+      scrollDown();
+    }
+
+    function showTyping() {
+      const row = document.createElement('div');
+      row.className = 'msg-row bot';
+      row.id = 'typingRow';
+      const av = document.createElement('div');
+      av.className = 'mini-avatar';
+      const ic = document.createElement('i');
+      ic.className = 'fa-solid fa-robot';
+      av.appendChild(ic);
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble typing';
+      for (let i = 0; i < 3; i++) bubble.appendChild(document.createElement('span'));
+      row.appendChild(av);
+      row.appendChild(bubble);
+      messagesEl.appendChild(row);
+      scrollDown();
+    }
+
+    function hideTyping() {
+      const t = document.getElementById('typingRow');
+      if (t) t.remove();
+    }
+
+    function ask(text) {
+      const msg = (text || '').trim();
+      if (!msg || busy) return;
+      busy = true;
+
+      // save the question and the answer right away, so leaving the page never loses them
+      const reply = getReply(msg);
+      chatLog.push({ who: 'user', text: msg, ts: Date.now() });
+      chatLog.push({ who: 'bot', text: reply, ts: Date.now() });
+      saveChat();
+
+      renderMessage(msg, 'user');
+      showTyping();
+
+      setTimeout(() => {
+        hideTyping();
+        renderMessage(reply, 'bot');
+        busy = false;
+        inputEl.focus();
+      }, 500);
+    }
+
+    function sendMessage() {
+      const v = inputEl.value;
+      inputEl.value = '';
+      ask(v);
+    }
+
+    function greetText() {
+      const s = getStats();
+      return `Hello ${s.name}! 👋 I'm Finora AI.\nI can answer about your budget, transactions, goals, funds and premiums, and explain how every part of SaveWise works. Tap an option below or type your own question.\nYour chat stays saved until you click Clear Chat.`;
+    }
+
+    function clearChat() {
+      if (!confirm('Delete this whole chat? This cannot be undone.')) return;
+      chatLog = [];
+      localStorage.removeItem(chatKey);
+      messagesEl.innerHTML = '';
+      const g = greetText();
+      chatLog.push({ who: 'bot', text: g, ts: Date.now() });
+      saveChat();
+      renderMessage(g, 'bot');
+    }
+
+    function buildChips() {
+      const bar = document.getElementById('chipsBar');
+      const items = [
+        'What is SaveWise?',
+        'What is my balance?',
+        'How much have I saved?',
+        'How do I add savings?',
+        'Next premium due',
+        'My funds',
+        'Savings this year',
+        'Budget status',
+        'Goals progress',
+        'What pages are there?',
+        'Saving tips'
+      ];
+      items.forEach(label => {
+        const b = document.createElement('button');
+        b.className = 'chip';
+        b.textContent = label;
+        b.addEventListener('click', () => ask(label));
+        bar.appendChild(b);
+      });
+    }
+
+    inputEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    function handleLogout() {
+      localStorage.removeItem('savewise_current_user');
+      window.location.href = 'login.html';
+    }
+
+    window.onload = function() {
+      buildChips();
+
+      chatLog = loadChat();
+      if (chatLog.length === 0) {
+        const g = greetText();
+        chatLog.push({ who: 'bot', text: g, ts: Date.now() });
+        saveChat();
+      }
+      chatLog.forEach(m => renderMessage(m.text, m.who));
+
+      inputEl.focus();
+    };
+  </script>
+</body>
+</html>
